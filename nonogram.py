@@ -3,6 +3,8 @@ import numpy as np
 import time
 import json
 import promptlib
+import tkinter as tk
+from tkinter import filedialog
 
 prompter = promptlib.Files()
 
@@ -24,13 +26,13 @@ playSizeY = 0
 createSizeX = 0
 createSizeY = 0
 
-fieldWidth = Rect(740,980,200,75,border="black",fill=None)
-fieldXText = Label("Field X",fieldWidth.centerX,fieldWidth.centerY-60,size=30,font="Archivo")
-fieldWidthText = Label("",fieldWidth.centerX,fieldWidth.centerY,size=45,font="Archivo")
+fieldWidth = Rect(740,980,200,75,border="black",fill=None,visible = False)
+fieldXText = Label("Field X",fieldWidth.centerX,fieldWidth.centerY-60,size=30,font="Archivo",visible = False)
+fieldWidthText = Label("",fieldWidth.centerX,fieldWidth.centerY,size=45,font="Archivo",visible = False)
 fieldWidth.selected = False
-fieldHeight = Rect(960,980,200,75,border="black",fill=None)
-fieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,size=30,font="Archivo")
-fieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo")
+fieldHeight = Rect(960,980,200,75,border="black",fill=None,visible = False)
+fieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,size=30,font="Archivo",visible = False)
+fieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo",visible = False)
 fieldHeight.selected = False
 
 createBoardSelected = np.array(([],[]),ndmin=2)
@@ -38,13 +40,39 @@ playBoardArray = np.array(([],[]),ndmin=2)
 playBoardSelected = np.array(([],[]),ndmin=2)
 
 createBoard = Group()
+createBoard.visible = False
 createBoardNumbersX = Group()
+createBoardNumbersX.visible = False
 createBoardNumbersY = Group()
+createBoardNumbersY.visible = False
 
 playBoard = Group()
+playBoard.visible = False
 playBoardNumbersX = Group()
+playBoardNumbersX.visible = False
 playBoardNumbersY = Group()
+playBoardNumbersY.visible = False
 winCelebration = Label("Nonogram Solved!",300,540,size=50,font="Archivo",fill="green",visible = False)
+playTutorial1 = Label("Press J to select a JSON file",1720,500,visible=False,size=40)
+playTutorial2 = Label("Press the squares to fill in",1680,540,visible=False,size=40)
+
+info = Group(
+    Label("Nonogram is a puzzle that uses a grid and numbers on the edges to reveals a hidden image,",940,200,size=30),
+    Label("created by Non Ishida and James Dalgety.",940,250,size=30),
+    Label("HOW TO PLAY",940,300,size=40),
+    Label("To start a game, press the letter J on the play screen. This will allow you to open up",940,350,size=30),
+    Label("a Nonogram JSON. When opened, you will see a grid with numbers along the left and top edge.",940,400,size=30),
+    Label("Those numbers explains the length of a unbroken cell, with atleast one spacing between cells.",940,450,size=30),
+    Label("For example, if you have a row with numbers 2, 3, 8, you can expect there to be a sequence", 940,500,size=30),
+    Label("in that row that looks like 2 unbroken cells on the left, 3 unbroken cells after the 2,",940,550,size=30),
+    Label("and a long 8 cells around the right.",940,600,size=30),
+    Label("HOW TO CREATE",940,650,size=40),
+    Label("To create, open up the create tab. On the bottom allows you to determine the size of the",940,700,size=30),
+    Label("grid. Press on it, type a number from 1-20 for either, and press G to generate the nonogram.",940,750,size=30),
+    Label("Press the grid to draw your image. It will create a black cell. Press on it again to make",940,800,size=30),
+    Label("it red. A red cell is a empty cell, however persists into gameplay, telling the player that",940,850,size=30),
+    Label("it's an empty cell. This can prevent the player from solving the nonogram incorrectly.",940,900,size=30)
+)
 
 def createCreateBoard():
     global createBoardSelected
@@ -80,16 +108,21 @@ def createCreateBoard():
 def playCreateBoard():
     global playBoardArray
     global playBoardSelected
+    playBoard.clear()
+    playBoardNumbersY.clear()
+    playBoardNumbersX.clear()
+    winCelebration.visible = False
     fileBoard = prompter.file()
     fileBoard = open(fileBoard)
     jsonBoard = json.load(fileBoard)
     playBoardW = jsonBoard["boardData"][0]["boardW"]
-    playBoardH = jsonBoard["boardData"][0]["boardW"]
+    playBoardH = jsonBoard["boardData"][1]["boardH"]
     playBoardArray = np.array(jsonBoard["boardArray"])
     for i in range(playBoardH):
         tempGroup = Group()
         tempArray = np.array([],ndmin=1)
         for o in range(playBoardW):
+            print(i,o,playBoardW,playBoardH)
             if playBoardArray[i,o] == 2:
                 tempArray = np.append(tempArray,[2])
             else:
@@ -97,7 +130,7 @@ def playCreateBoard():
             if playBoardArray[i,o] == 2:
                 tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="black"))
             else:
-                print(playBoardArray[i,o])
+                #print(playBoardArray[i,o])
                 tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="black"))
             if i == 0:
                 playBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90)) # God forbid supporting \n! Guess I must force users to tilt their heads
@@ -262,6 +295,12 @@ def hideCreate():
     createBoardNumbersX.visible = False
     createBoardNumbersY.visible = False
 
+def showInfo():
+    info.visible = True
+
+def hideInfo():
+    info.visible = False
+
 def showCreate():
     createBoard.visible = True
     fieldHeight.visible = True
@@ -277,17 +316,30 @@ def showPlay():
     playBoard.visible = True
     playBoardNumbersX.visible = True
     playBoardNumbersY.visible = True
+    playTutorial1.visible = True
+    playTutorial2.visible = True
 
 def hidePlay():
+    playTutorial1.visible = False
+    playTutorial2.visible = False
     playBoard.visible = False
+    winCelebration.visible = False
     playBoardNumbersX.visible = False
     playBoardNumbersY.visible = False
 
-def onMousePress(mX,mY):
+def onMousePress(mX,mY,button):
     if buttonCreate.contains(mX,mY):
         showCreate()
+        hidePlay()
+        hideInfo()
     elif buttonInfo.contains(mX,mY):
         hideCreate()
+        hidePlay()
+        showInfo()
+    elif buttonPlay.contains(mX,mY):
+        hideCreate()
+        showPlay()
+        hideInfo()
     if createBoard.visible:
         if fieldWidth.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
             fieldWidth.selected = True
@@ -327,13 +379,30 @@ def onMousePress(mX,mY):
                 for t in r:
                     tN += 1
                     if t.contains(mX,mY):
-                        if playBoardSelected[rN,tN] == 0:
-                            t.fill="black"
-                            playBoardSelected[rN,tN] = 1
-                            #print(createBoardSelected)
-                        elif playBoardSelected[rN,tN] == 1:
-                            t.fill = None
-                            playBoardSelected[rN,tN] = 0
+                        if button == 2:
+                            if t.fill == None or t.fill == "black":
+                                t.fill = "blue"
+                                playBoardSelected[rN,tN] = 0
+                            elif t.fill == "blue":
+                                t.fill = None
+                                playBoardSelected[rN,tN] = 0
+                        if button == 0:
+                            if t.fill == None or t.fill == "blue":
+                                t.fill="black"
+                                playBoardSelected[rN,tN] = 1
+                            elif t.fill == "black":
+                                t.fill = None
+                                playBoardSelected[rN,tN] = 0
+                        #if t.fill == None:
+                        #    t.fill="black"
+                        #    playBoardSelected[rN,tN] = 1
+                        #    #print(createBoardSelected)
+                        #elif t.fill == "blue":
+                        #    t.fill = None
+                        #    playBoardSelected[rN,tN] = 0
+                        #elif t.fill == "black":
+                        #    t.fill = "blue"
+                        #    playBoardSelected[rN,tN] = 0
             if np.array_equal(playBoardArray,playBoardSelected):
                 print("ya win buster!")
                 winCelebration.visible = True
@@ -348,19 +417,36 @@ def createExportBoard():
         "boardArray": createBoardSelected.tolist()
     }
     print(json.dumps(createBoardJson))
-    directory = prompter.dir()
-    with open(directory + "\\nonogramJson.json","w") as f:
+    directory = filedialog.asksaveasfilename(defaultextension=".json")
+    with open(directory,"w") as f:
         print(directory)
         json.dump(createBoardJson,f,indent=4)
 
 def onKeyPress(key):
     global createSizeX
     global createSizeY
+    if playBoard.visible:
+        if key == "j":
+            playCreateBoard()
+        if key == "up":
+            playBoard.centerY -= 10
+            playBoardNumbersX.centerY -= 10
+            playBoardNumbersY.centerY -= 10
+        if key == "down":
+            playBoard.centerY += 10
+            playBoardNumbersX.centerY += 10
+            playBoardNumbersY.centerY += 10
+        if key == "left":
+            playBoard.centerX -= 10
+            playBoardNumbersX.centerX -= 10
+            playBoardNumbersY.centerX -= 10
+        if key == "right":
+            playBoard.centerX += 10
+            playBoardNumbersX.centerX += 10
+            playBoardNumbersY.centerX += 10
     if createBoard.visible:
         if key == "g":
             createCreateBoard()
-        if key == "j":
-            playCreateBoard()
         if key == "e":
             createExportBoard()
         if key == "up":
