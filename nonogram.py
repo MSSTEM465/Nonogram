@@ -39,6 +39,7 @@ createBoardSelected = np.array(([],[]),ndmin=2)
 playBoardArray = np.array(([],[]),ndmin=2)
 playBoardSelected = np.array(([],[]),ndmin=2)
 
+
 createBoard = Group()
 createBoard.visible = False
 createBoardNumbersX = Group()
@@ -74,6 +75,23 @@ info = Group(
     Label("it's an empty cell. This can prevent the player from solving the nonogram incorrectly.",940,900,size=30)
 )
 
+greyOut = Rect(0,0,1920,1080,fill="white",opacity=80,visible = False)
+backgroundGUI = Rect(360,180,1200,720,fill="white",border="black",borderWidth=7,visible = False)
+xMark = Label("X",1510,230,size=50,visible = False)
+titlePlayGUI = Label("Play Mode Settings",1920/2,230,size=40,visible = False)
+checkmarkAutofill = Rect(400,320,100,100,fill="white",border="black",borderWidth=3,visible = False)
+settingAutofill = Label("Autofill Lane",600,370,size=30,visible = False)
+checkmarkCorrection = Rect(400,440,100,100,fill="white",border="black",borderWidth=3,visible = False)
+settingCorrection = Label("Correction",600,490,size=30,visible = False)
+autofill = False
+correction = False
+
+titleCreateGUI = Label("Create Mode Settings",1920/2,230,size=40,visible = False)
+#checkmarkAutofill = Rect(400,320,100,100,fill="white",border="black",borderWidth=3)
+#settingAutofill = Label("Autofill Lane",600,370,size=30)
+#checkmarkCorrection = Rect(400,440,100,100,fill="white",border="black",borderWidth=3)
+#settingCorrection = Label("Correction",600,490,size=30)
+
 def createCreateBoard():
     global createBoardSelected
     createBoard.clear()
@@ -84,7 +102,7 @@ def createCreateBoard():
         tempArray = np.array([],ndmin=1)
         for o in range(createSizeX):
             tempArray = np.append(tempArray,[0])
-            tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="black"))
+            tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
             if i == 0:
                 createBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90)) # God forbid supporting \n! Guess I must force users to tilt their heads
         try:
@@ -103,7 +121,7 @@ def createCreateBoard():
     createBoardNumbersY.right = createBoard.left - 1
     createBoardNumbersY.centerY = createBoard.centerY
     #createBoardNumbers.bottomY = createBoard.topY
-    print(createBoardSelected)
+    #print(createBoardSelected)
 
 def playCreateBoard():
     global playBoardArray
@@ -112,9 +130,13 @@ def playCreateBoard():
     playBoardNumbersY.clear()
     playBoardNumbersX.clear()
     winCelebration.visible = False
-    fileBoard = prompter.file()
-    fileBoard = open(fileBoard)
-    jsonBoard = json.load(fileBoard)
+    try:
+        fileBoard = prompter.file()
+        fileBoard = open(fileBoard)
+        jsonBoard = json.load(fileBoard)
+    except:
+        print("Failure to open file")
+        return
     playBoardW = jsonBoard["boardData"][0]["boardW"]
     playBoardH = jsonBoard["boardData"][1]["boardH"]
     playBoardArray = np.array(jsonBoard["boardArray"])
@@ -122,16 +144,16 @@ def playCreateBoard():
         tempGroup = Group()
         tempArray = np.array([],ndmin=1)
         for o in range(playBoardW):
-            print(i,o,playBoardW,playBoardH)
+            #print(i,o,playBoardW,playBoardH)
             if playBoardArray[i,o] == 2:
                 tempArray = np.append(tempArray,[2])
             else:
                 tempArray = np.append(tempArray,[0])
             if playBoardArray[i,o] == 2:
-                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="black"))
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey"))
             else:
                 #print(playBoardArray[i,o])
-                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="black"))
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
             if i == 0:
                 playBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90)) # God forbid supporting \n! Guess I must force users to tilt their heads
         try:
@@ -295,6 +317,33 @@ def hideCreate():
     createBoardNumbersX.visible = False
     createBoardNumbersY.visible = False
 
+def showPlayConfig():
+    greyOut.visible = True
+    backgroundGUI.visible = True
+    titlePlayGUI.visible = True
+    checkmarkAutofill.visible = True
+    checkmarkCorrection.visible = True
+    settingAutofill.visible = True
+    settingCorrection.visible = True
+    xMark.visible = True
+
+def showCreateConfig():
+    greyOut.visible = True
+    backgroundGUI.visible = True
+    titleCreateGUI.visible = True
+    xMark.visible = True
+
+def hideConfigs():
+    greyOut.visible = False
+    backgroundGUI.visible = False
+    titlePlayGUI.visible = False
+    titleCreateGUI.visible = False
+    checkmarkAutofill.visible = False
+    checkmarkCorrection.visible = False
+    settingAutofill.visible = False
+    settingCorrection.visible = False
+    xMark.visible = False
+
 def showInfo():
     info.visible = True
 
@@ -327,8 +376,76 @@ def hidePlay():
     playBoardNumbersX.visible = False
     playBoardNumbersY.visible = False
 
+def onMouseDrag(mX,mY,button):
+    if createBoard.visible:
+        print(1)
+        if createBoard.contains(mX,mY):
+            print(2)
+            rN = -1
+            tN = -1
+            for r in createBoard:
+                rN +=1
+                tN = -1
+                for t in r:
+                    tN += 1
+                    if t.contains(mX,mY):
+                        print(3)
+                        if button == [0]:
+                            t.fill="black"
+                            createBoardSelected[rN,tN] = 1
+                            #print(createBoardSelected)
+                        elif button == [2]:
+                            t.fill="red"
+                            createBoardSelected[rN,tN] = 2
+                            #print(createBoardSelected)
+                        elif button == [1]:
+                            t.fill = None
+                            createBoardSelected[rN,tN] = 0
+            updateText()
+    if playBoard.visible:
+        if playBoard.contains(mX,mY):
+            rN = -1
+            tN = -1
+            for r in playBoard:
+                rN +=1
+                tN = -1
+                for t in r:
+                    tN += 1
+                    if t.contains(mX,mY):
+                        if button == [0]:
+                            if t.fill == None or t.fill == "blue":
+                                t.fill = "black"
+                                playBoardSelected[rN,tN] = 1
+                            #elif t.fill == "blue":
+                            #    t.fill = None
+                            #    playBoardSelected[rN,tN] = 0
+                        if button == [1]:
+                            if t.fill == "black" or t.fill == "blue":
+                                t.fill = None
+                                playBoardSelected[rN,tN] = 0
+                        if button == [2]:
+                            if t.fill == "black" or t.fill == None:
+                                t.fill = "blue"
+                        #if t.fill == None:
+                        #    t.fill="black"
+                        #    playBoardSelected[rN,tN] = 1
+                        #    #print(createBoardSelected)
+                        #elif t.fill == "blue":
+                        #    t.fill = None
+                        #    playBoardSelected[rN,tN] = 0
+                        #elif t.fill == "black":
+                        #    t.fill = "blue"
+                        #    playBoardSelected[rN,tN] = 0
+            if np.array_equal(playBoardArray,playBoardSelected):
+                #print("ya win buster!")
+                winCelebration.visible = True
+    
+
+
 def onMousePress(mX,mY,button):
-    if buttonCreate.contains(mX,mY):
+    if xMark.contains(mX,mY):
+        hideConfigs()
+    elif buttonCreate.contains(mX,mY):
         showCreate()
         hidePlay()
         hideInfo()
@@ -341,71 +458,73 @@ def onMousePress(mX,mY,button):
         showPlay()
         hideInfo()
     if createBoard.visible:
-        if fieldWidth.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
-            fieldWidth.selected = True
-            fieldWidth.fill = rgb(255,200,255)
-        elif fieldHeight.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
-            fieldHeight.selected = True
-            fieldHeight.fill = rgb(255,200,255)
-        elif createBoard.contains(mX,mY):
-            rN = -1
-            tN = -1
-            for r in createBoard:
-                rN +=1
+        if not greyOut.visible:
+            if fieldWidth.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
+                fieldWidth.selected = True
+                fieldWidth.fill = rgb(255,200,255)
+            elif fieldHeight.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
+                fieldHeight.selected = True
+                fieldHeight.fill = rgb(255,200,255)
+            elif createBoard.contains(mX,mY):
+                rN = -1
                 tN = -1
-                for t in r:
-                    tN += 1
-                    if t.contains(mX,mY):
-                        if createBoardSelected[rN,tN] == 0:
-                            t.fill="black"
-                            createBoardSelected[rN,tN] = 1
-                            print(createBoardSelected)
-                        elif createBoardSelected[rN,tN] == 1:
-                            t.fill="red"
-                            createBoardSelected[rN,tN] = 2
-                            print(createBoardSelected)
-                        elif createBoardSelected[rN,tN] == 2:
-                            t.fill = None
-                            createBoardSelected[rN,tN] = 0
-
-            updateText()
-    if playBoard.visible:
-        if playBoard.contains(mX,mY):
-            rN = -1
-            tN = -1
-            for r in playBoard:
-                rN +=1
-                tN = -1
-                for t in r:
-                    tN += 1
-                    if t.contains(mX,mY):
-                        if button == 2:
-                            if t.fill == None or t.fill == "black":
-                                t.fill = "blue"
-                                playBoardSelected[rN,tN] = 0
-                            elif t.fill == "blue":
-                                t.fill = None
-                                playBoardSelected[rN,tN] = 0
-                        if button == 0:
-                            if t.fill == None or t.fill == "blue":
+                for r in createBoard:
+                    rN +=1
+                    tN = -1
+                    for t in r:
+                        tN += 1
+                        if t.contains(mX,mY):
+                            if createBoardSelected[rN,tN] == 0:
                                 t.fill="black"
-                                playBoardSelected[rN,tN] = 1
-                            elif t.fill == "black":
+                                createBoardSelected[rN,tN] = 1
+                                #print(createBoardSelected)
+                            elif createBoardSelected[rN,tN] == 1:
+                                t.fill="red"
+                                createBoardSelected[rN,tN] = 2
+                                #print(createBoardSelected)
+                            elif createBoardSelected[rN,tN] == 2:
                                 t.fill = None
-                                playBoardSelected[rN,tN] = 0
-                        #if t.fill == None:
-                        #    t.fill="black"
-                        #    playBoardSelected[rN,tN] = 1
-                        #    #print(createBoardSelected)
-                        #elif t.fill == "blue":
-                        #    t.fill = None
-                        #    playBoardSelected[rN,tN] = 0
-                        #elif t.fill == "black":
-                        #    t.fill = "blue"
-                        #    playBoardSelected[rN,tN] = 0
-            if np.array_equal(playBoardArray,playBoardSelected):
-                print("ya win buster!")
-                winCelebration.visible = True
+                                createBoardSelected[rN,tN] = 0
+
+                updateText()
+    if playBoard.visible:
+        if not greyOut.visible:
+            if playBoard.contains(mX,mY):
+                rN = -1
+                tN = -1
+                for r in playBoard:
+                    rN +=1
+                    tN = -1
+                    for t in r:
+                        tN += 1
+                        if t.contains(mX,mY):
+                            if button == 2:
+                                if t.fill == None or t.fill == "black":
+                                    t.fill = "blue"
+                                    playBoardSelected[rN,tN] = 0
+                                elif t.fill == "blue":
+                                    t.fill = None
+                                    playBoardSelected[rN,tN] = 0
+                            if button == 0:
+                                if t.fill == None or t.fill == "blue":
+                                    t.fill="black"
+                                    playBoardSelected[rN,tN] = 1
+                                elif t.fill == "black":
+                                    t.fill = None
+                                    playBoardSelected[rN,tN] = 0
+                            #if t.fill == None:
+                            #    t.fill="black"
+                            #    playBoardSelected[rN,tN] = 1
+                            #    #print(createBoardSelected)
+                            #elif t.fill == "blue":
+                            #    t.fill = None
+                            #    playBoardSelected[rN,tN] = 0
+                            #elif t.fill == "black":
+                            #    t.fill = "blue"
+                            #    playBoardSelected[rN,tN] = 0
+                if np.array_equal(playBoardArray,playBoardSelected):
+                    #print("ya win buster!")
+                    winCelebration.visible = True
 
 
 def createExportBoard():
@@ -416,16 +535,18 @@ def createExportBoard():
         ],
         "boardArray": createBoardSelected.tolist()
     }
-    print(json.dumps(createBoardJson))
+    #print(json.dumps(createBoardJson))
     directory = filedialog.asksaveasfilename(defaultextension=".json")
     with open(directory,"w") as f:
-        print(directory)
+        #print(directory)
         json.dump(createBoardJson,f,indent=4)
 
 def onKeyPress(key):
     global createSizeX
     global createSizeY
     if playBoard.visible:
+        if key == "c":
+            showPlayConfig()
         if key == "j":
             playCreateBoard()
         if key == "up":
@@ -445,6 +566,8 @@ def onKeyPress(key):
             playBoardNumbersX.centerX += 10
             playBoardNumbersY.centerX += 10
     if createBoard.visible:
+        if key == "c":
+            showCreateConfig()
         if key == "g":
             createCreateBoard()
         if key == "e":
