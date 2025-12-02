@@ -1,6 +1,7 @@
 from cmu_graphics import *
 import numpy as np
 import time
+import math
 import json
 import promptlib
 import tkinter as tk
@@ -54,6 +55,7 @@ playBoardNumbersX.visible = False
 playBoardNumbersY = Group()
 playBoardNumbersY.visible = False
 winCelebration = Label("Nonogram Solved!",300,540,size=50,font="Archivo",fill="green",visible = False)
+wrongThing = Label("Thats wrong!",300,300,size=50,font="Archivo",fill="Red",visible=False)
 playTutorial1 = Label("Press J to select a JSON file",1720,500,visible=False,size=40)
 playTutorial2 = Label("Press the squares to fill in",1680,540,visible=False,size=40)
 
@@ -412,6 +414,17 @@ def onMouseDrag(mX,mY,button):
                 for t in r:
                     tN += 1
                     if t.contains(mX,mY):
+                        if correction:
+                                if playBoardArray[rN,tN] == 2: # Won't reprimand player by pressing red cells this way
+                                    return
+                                elif button == 0 and not playBoardArray[rN,tN] == 1:
+                                    print("Wrong")
+                                    wrongThing.visible = True
+                                    return
+                                elif button == 2 and not playBoardArray[rN,tN] == 0:
+                                    print("Wrong")
+                                    wrongThing.visible = True
+                                    return
                         if button == [0]:
                             if t.fill == None or t.fill == "blue":
                                 t.fill = "black"
@@ -426,16 +439,32 @@ def onMouseDrag(mX,mY,button):
                         if button == [2]:
                             if t.fill == "black" or t.fill == None:
                                 t.fill = "blue"
-                        #if t.fill == None:
-                        #    t.fill="black"
-                        #    playBoardSelected[rN,tN] = 1
-                        #    #print(createBoardSelected)
-                        #elif t.fill == "blue":
-                        #    t.fill = None
-                        #    playBoardSelected[rN,tN] = 0
-                        #elif t.fill == "black":
-                        #    t.fill = "blue"
-                        #    playBoardSelected[rN,tN] = 0
+                        if autofill:
+                            if np.array_equal(playBoardSelected[:, tN],playBoardArray[:, tN]): # This is ugly code. Sorry
+                                #print(len(playBoardArray[:,0]))
+                                countauto = -1
+                                countvert = -1
+                                preventions = 0
+                                for k in playBoard:
+                                    countvert += 1
+                                    for l in k:
+                                        if preventions == countvert:
+                                            countauto += 1
+                                        #print(tN,countauto,preventions,countvert)
+                                        if tN == countauto and preventions == countvert:
+                                            preventions += 1
+                                            countauto = -1
+                                            if l.fill == None:
+                                                l.fill = "blue"
+                            if np.array_equal(playBoardSelected[rN],playBoardArray[rN]):
+                                countvert2 = -1
+                                for c in playBoard:
+                                    countvert2 += 1
+                                    if countvert2 == rN:
+                                        for v in c:
+                                            if v.fill == None:
+                                                v.fill = "blue"
+
             if np.array_equal(playBoardArray,playBoardSelected):
                 #print("ya win buster!")
                 winCelebration.visible = True
@@ -443,8 +472,25 @@ def onMouseDrag(mX,mY,button):
 
 
 def onMousePress(mX,mY,button):
+    global autofill
+    global correction
     if xMark.contains(mX,mY):
         hideConfigs()
+    elif titleCreateGUI.visible:
+        print()
+    elif titlePlayGUI.visible:
+        if checkmarkAutofill.contains(mX,mY):
+            autofill = not autofill
+            if autofill:
+                checkmarkAutofill.fill = "red"
+            else:
+                checkmarkAutofill.fill = "white"
+        if checkmarkCorrection.contains(mX,mY):
+            correction = not correction
+            if correction:
+                checkmarkCorrection.fill = "red"
+            else:
+                checkmarkCorrection.fill = "white"
     elif buttonCreate.contains(mX,mY):
         showCreate()
         hidePlay()
@@ -498,6 +544,17 @@ def onMousePress(mX,mY,button):
                     for t in r:
                         tN += 1
                         if t.contains(mX,mY):
+                            if correction:
+                                if playBoardArray[rN,tN] == 2: # Won't reprimand player by pressing red cells this way
+                                    return
+                                elif button == 0 and not playBoardArray[rN,tN] == 1:
+                                    print("Wrong")
+                                    wrongThing.visible = True
+                                    return
+                                elif button == 2 and not playBoardArray[rN,tN] == 0:
+                                    print("Wrong")
+                                    wrongThing.visible = True
+                                    return
                             if button == 2:
                                 if t.fill == None or t.fill == "black":
                                     t.fill = "blue"
@@ -505,23 +562,41 @@ def onMousePress(mX,mY,button):
                                 elif t.fill == "blue":
                                     t.fill = None
                                     playBoardSelected[rN,tN] = 0
-                            if button == 0:
+                                wrongThing.visible = False
+                            elif button == 0:
                                 if t.fill == None or t.fill == "blue":
                                     t.fill="black"
                                     playBoardSelected[rN,tN] = 1
                                 elif t.fill == "black":
                                     t.fill = None
                                     playBoardSelected[rN,tN] = 0
-                            #if t.fill == None:
-                            #    t.fill="black"
-                            #    playBoardSelected[rN,tN] = 1
-                            #    #print(createBoardSelected)
-                            #elif t.fill == "blue":
-                            #    t.fill = None
-                            #    playBoardSelected[rN,tN] = 0
-                            #elif t.fill == "black":
-                            #    t.fill = "blue"
-                            #    playBoardSelected[rN,tN] = 0
+                                wrongThing.visible = False # I'm writing YanDev code here at this point
+                            if autofill:
+                                if np.array_equal(playBoardSelected[:, tN],playBoardArray[:, tN]): # This is ugly code. Sorry
+                                    #print(len(playBoardArray[:,0]))
+                                    countauto = -1
+                                    countvert = -1
+                                    preventions = 0
+                                    for k in playBoard:
+                                        countvert += 1
+                                        for l in k:
+                                            if preventions == countvert:
+                                                countauto += 1
+                                            #print(tN,countauto,preventions,countvert)
+                                            if tN == countauto and preventions == countvert:
+                                                preventions += 1
+                                                countauto = -1
+                                                if l.fill == None:
+                                                    l.fill = "blue"
+                                if np.array_equal(playBoardSelected[rN],playBoardArray[rN]):
+                                    countvert2 = -1
+                                    for c in playBoard:
+                                        countvert2 += 1
+                                        if countvert2 == rN:
+                                            for v in c:
+                                                if v.fill == None:
+                                                    v.fill = "blue"
+                print(playBoardSelected)
                 if np.array_equal(playBoardArray,playBoardSelected):
                     #print("ya win buster!")
                     winCelebration.visible = True
