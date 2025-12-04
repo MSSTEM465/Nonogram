@@ -85,8 +85,13 @@ checkmarkAutofill = Rect(400,320,100,100,fill="white",border="black",borderWidth
 settingAutofill = Label("Autofill Lane",600,370,size=30,visible = False)
 checkmarkCorrection = Rect(400,440,100,100,fill="white",border="black",borderWidth=3,visible = False)
 settingCorrection = Label("Correction",600,490,size=30,visible = False)
+checkmarkPenalize = Rect(400,560,100,100,fill="white",border="grey",visible=False,borderWidth=3)
+settingPenalize = Label("Penalize when Wrong",660,610,size=30,visible = False)
+lastEntered = [-1,-1]
 autofill = False
 correction = False
+penalize = False
+lives = 5
 
 titleCreateGUI = Label("Create Mode Settings",1920/2,230,size=40,visible = False)
 #checkmarkAutofill = Rect(400,320,100,100,fill="white",border="black",borderWidth=3)
@@ -128,10 +133,15 @@ def createCreateBoard():
 def playCreateBoard():
     global playBoardArray
     global playBoardSelected
+    global lives
+    global lastEntered
     playBoard.clear()
     playBoardNumbersY.clear()
     playBoardNumbersX.clear()
     winCelebration.visible = False
+    lives = 5
+    lastEntered = [-1,-1]
+    playBoardSelected = np.array(([],[]),ndmin=2)
     try:
         fileBoard = prompter.file()
         fileBoard = open(fileBoard)
@@ -328,6 +338,8 @@ def showPlayConfig():
     settingAutofill.visible = True
     settingCorrection.visible = True
     xMark.visible = True
+    checkmarkPenalize.visible = True
+    settingPenalize.visible = True
 
 def showCreateConfig():
     greyOut.visible = True
@@ -345,6 +357,8 @@ def hideConfigs():
     settingAutofill.visible = False
     settingCorrection.visible = False
     xMark.visible = False
+    settingPenalize.visible = False
+    checkmarkPenalize.visible = False
 
 def showInfo():
     info.visible = True
@@ -378,7 +392,21 @@ def hidePlay():
     playBoardNumbersX.visible = False
     playBoardNumbersY.visible = False
 
+def updatePenalizeText():
+    if penalize:
+        if lives == 0:
+            wrongThing.value = "You have failed."
+            playBoard.clear()
+            playBoardNumbersX.clear()
+            playBoardNumbersY.clear()
+        else:    
+            wrongThing.value = "Lives left: " + str(lives)
+    else:
+        wrongThing.value = "Thats wrong!"
+
 def onMouseDrag(mX,mY,button):
+    global lastEntered
+    global lives
     if createBoard.visible:
         print(1)
         if createBoard.contains(mX,mY):
@@ -415,15 +443,25 @@ def onMouseDrag(mX,mY,button):
                     tN += 1
                     if t.contains(mX,mY):
                         if correction:
-                                if playBoardArray[rN,tN] == 2: # Won't reprimand player by pressing red cells this way
+                                if playBoardArray[rN,tN] == 2 or t.fill == "blue": # Won't reprimand player by pressing red cells this way
                                     return
-                                elif button == 0 and not playBoardArray[rN,tN] == 1:
+                                elif button == [0] and not playBoardArray[rN,tN] == 1:
                                     print("Wrong")
                                     wrongThing.visible = True
+                                    if penalize:
+                                        if not lastEntered == [rN,tN]:
+                                            lives -= 1
+                                            lastEntered = [rN,tN]
+                                            updatePenalizeText()
                                     return
-                                elif button == 2 and not playBoardArray[rN,tN] == 0:
+                                elif button == [2] and not playBoardArray[rN,tN] == 0:
                                     print("Wrong")
                                     wrongThing.visible = True
+                                    if penalize:
+                                        if not lastEntered == [rN,tN]:
+                                            lives -= 1
+                                            lastEntered = [rN,tN]
+                                            updatePenalizeText()
                                     return
                         if button == [0]:
                             if t.fill == None or t.fill == "blue":
@@ -474,6 +512,9 @@ def onMouseDrag(mX,mY,button):
 def onMousePress(mX,mY,button):
     global autofill
     global correction
+    global lives
+    global lastEntered
+    global penalize
     if xMark.contains(mX,mY):
         hideConfigs()
     elif titleCreateGUI.visible:
@@ -489,8 +530,19 @@ def onMousePress(mX,mY,button):
             correction = not correction
             if correction:
                 checkmarkCorrection.fill = "red"
+                checkmarkPenalize.border = "black"
             else:
                 checkmarkCorrection.fill = "white"
+                checkmarkPenalize.border = "grey"
+                penalize = False
+                checkmarkPenalize.fill = "white"
+        if checkmarkPenalize.contains(mX,mY):
+            if checkmarkPenalize.border == "black":
+                penalize = not penalize
+                if penalize:
+                    checkmarkPenalize.fill = "red"
+                else:
+                    checkmarkPenalize.fill = "white"
     elif buttonCreate.contains(mX,mY):
         showCreate()
         hidePlay()
@@ -545,15 +597,25 @@ def onMousePress(mX,mY,button):
                         tN += 1
                         if t.contains(mX,mY):
                             if correction:
-                                if playBoardArray[rN,tN] == 2: # Won't reprimand player by pressing red cells this way
+                                if playBoardArray[rN,tN] == 2 or t.fill == "blue": # Won't reprimand player by pressing red cells or over shooting into blue cells
                                     return
                                 elif button == 0 and not playBoardArray[rN,tN] == 1:
                                     print("Wrong")
                                     wrongThing.visible = True
+                                    if penalize:
+                                        if not lastEntered == [rN,tN]:
+                                            lives -= 1
+                                            lastEntered = [rN,tN]
+                                            updatePenalizeText()
                                     return
                                 elif button == 2 and not playBoardArray[rN,tN] == 0:
                                     print("Wrong")
                                     wrongThing.visible = True
+                                    if penalize:
+                                        if not lastEntered == [rN,tN]:
+                                            lives -= 1
+                                            lastEntered = [rN,tN]
+                                            updatePenalizeText()
                                     return
                             if button == 2:
                                 if t.fill == None or t.fill == "black":
@@ -572,7 +634,9 @@ def onMousePress(mX,mY,button):
                                     playBoardSelected[rN,tN] = 0
                                 wrongThing.visible = False # I'm writing YanDev code here at this point
                             if autofill:
+                                #print("Failure Point 1",playBoardSelected[:, tN],playBoardArray[:, tN])
                                 if np.array_equal(playBoardSelected[:, tN],playBoardArray[:, tN]): # This is ugly code. Sorry
+                                    #print("Failure Point 2")
                                     #print(len(playBoardArray[:,0]))
                                     countauto = -1
                                     countvert = -1
@@ -596,7 +660,7 @@ def onMousePress(mX,mY,button):
                                             for v in c:
                                                 if v.fill == None:
                                                     v.fill = "blue"
-                print(playBoardSelected)
+                #print(playBoardSelected)
                 if np.array_equal(playBoardArray,playBoardSelected):
                     #print("ya win buster!")
                     winCelebration.visible = True
