@@ -6,6 +6,7 @@ import json
 import promptlib
 import tkinter as tk
 from tkinter import filedialog
+import nonogramsolver as ns
 
 prompter = promptlib.Files()
 
@@ -26,6 +27,10 @@ playSizeX = 0
 playSizeY = 0
 createSizeX = 0
 createSizeY = 0
+solverSizeX = 0
+solverSizeY = 0
+solverSolverSizeX = 0
+solverSolverSizeY = 0
 
 fieldWidth = Rect(740,980,200,75,border="black",fill=None,visible = False)
 fieldXText = Label("Field X",fieldWidth.centerX,fieldWidth.centerY-60,size=30,font="Archivo",visible = False)
@@ -39,6 +44,11 @@ fieldHeight.selected = False
 createBoardSelected = np.array(([],[]),ndmin=2)
 playBoardArray = np.array(([],[]),ndmin=2)
 playBoardSelected = np.array(([],[]),ndmin=2)
+solverJSONArray = np.array(([],[]),ndmin=2)
+solverSolverArray = np.array(([],[]),ndmin=2)
+
+solverY = []
+solverX = []
 
 
 createBoard = Group()
@@ -47,6 +57,28 @@ createBoardNumbersX = Group()
 createBoardNumbersX.visible = False
 createBoardNumbersY = Group()
 createBoardNumbersY.visible = False
+
+testingList = []
+
+solverBoard = Group()
+solverBoard.visible = False
+solverPrereq = Group()
+solverPrereq.visible = False
+solverPrereqLabels = Group()
+solverPrereqLabels.visible = False
+solverBoardNumbersX = Group()
+solverBoardNumbersX.visible = False
+solverBoardNumbersY = Group()
+solverBoardNumbersY.visible = False
+solverFieldWidth = Rect(740,980,200,75,border="black",fill=None,visible = False)
+solverFieldXText = Label("Field X",fieldWidth.centerX,fieldWidth.centerY-60,size=30,font="Archivo",visible = False)
+solverFieldWidthText = Label("",fieldWidth.centerX,fieldWidth.centerY,size=45,font="Archivo",visible = False)
+solverFieldWidth.selected = False
+solverFieldHeight = Rect(960,980,200,75,border="black",fill=None,visible = False)
+solverFieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,size=30,font="Archivo",visible = False)
+solverFieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo",visible = False)
+solverFieldHeight.selected = False
+
 
 playBoard = Group()
 playBoard.visible = False
@@ -252,6 +284,265 @@ def playUpdateText():
             i.value = finalStr
         i.bottom = playBoard.top - 5
 
+def solverJSONUpdateText():
+    iN = -1
+    for i in solverBoardNumbersY:
+        fN = -1
+        iN +=1
+        counter = 0
+        finalStr = ""
+        #print(playBoardArray)
+        for f in solverJSONArray[iN]:
+            #print(f)
+            fN += 1
+            if f == 1:
+                counter += 1
+                #print(f,counter,"1L")
+                if fN == len(solverJSONArray[iN])-1:
+                    if counter >= 1:
+                        if finalStr == "":
+                            finalStr = str(counter)
+                        else:
+                            finalStr = finalStr + ", " + str(counter)
+                        counter = 0
+            else:
+                if counter >= 1:
+                    #print(counter,"3K")
+                    if finalStr == "":
+                        finalStr = str(counter)
+                    else:
+                        finalStr = finalStr + ", " + str(counter)
+                    counter = 0
+        if finalStr == "":
+            i.value = "0"
+        else:
+            i.value = finalStr
+        i.right = solverBoard.left - 5
+    iN = -1
+    for i in solverBoardNumbersX:
+        fN = -1
+        iN += 1
+        counter = 0
+        finalStr = ""
+        for f in solverJSONArray[:, iN]:
+            #print(f)
+            fN += 1
+            if f == 1:
+                counter += 1
+                #print(f,counter,"1L")
+                if fN == len(solverJSONArray)-1:
+                    if counter >= 1:
+                        if finalStr == "":
+                            finalStr = str(counter)
+                        else:
+                            finalStr = finalStr + ", " + str(counter)
+                        counter = 0
+            else:
+                if counter >= 1:
+                    #print(counter,"3K")
+                    if finalStr == "":
+                        finalStr = str(counter)
+                    else:
+                        finalStr = finalStr + ", " + str(counter)
+                    counter = 0
+        if finalStr == "":
+            i.value = "0"
+        else:
+            i.value = finalStr
+        i.bottom = solverBoard.top - 5
+
+def solverSolverUpdateText():
+    iN = -1
+    for i in solverBoardNumbersY:
+        fN = -1
+        iN +=1
+        counter = 0
+        finalStr = ""
+        #print(playBoardArray)
+        for f in solverSolverArray[iN]:
+            #print(f)
+            fN += 1
+            if f == 1:
+                counter += 1
+                #print(f,counter,"1L")
+                if fN == len(solverSolverArray[iN])-1:
+                    if counter >= 1:
+                        if finalStr == "":
+                            finalStr = str(counter)
+                        else:
+                            finalStr = finalStr + ", " + str(counter)
+                        counter = 0
+            else:
+                if counter >= 1:
+                    #print(counter,"3K")
+                    if finalStr == "":
+                        finalStr = str(counter)
+                    else:
+                        finalStr = finalStr + ", " + str(counter)
+                    counter = 0
+        if finalStr == "":
+            i.value = "0"
+        else:
+            i.value = finalStr
+        i.right = solverBoard.left - 5
+    iN = -1
+    for i in solverBoardNumbersX:
+        fN = -1
+        iN += 1
+        counter = 0
+        finalStr = ""
+        for f in solverSolverArray[:, iN]:
+            #print(f)
+            fN += 1
+            if f == 1:
+                counter += 1
+                #print(f,counter,"1L")
+                if fN == len(solverSolverArray)-1:
+                    if counter >= 1:
+                        if finalStr == "":
+                            finalStr = str(counter)
+                        else:
+                            finalStr = finalStr + ", " + str(counter)
+                        counter = 0
+            else:
+                if counter >= 1:
+                    #print(counter,"3K")
+                    if finalStr == "":
+                        finalStr = str(counter)
+                    else:
+                        finalStr = finalStr + ", " + str(counter)
+                    counter = 0
+        if finalStr == "":
+            i.value = "0"
+        else:
+            i.value = finalStr
+        i.bottom = solverBoard.top - 5
+
+def solverCreateBoardJSON():
+    global solverJSONArray
+    solverBoard.clear()
+    solverBoardNumbersY.clear()
+    solverBoardNumbersX.clear()
+    try:
+        fileBoard = prompter.file()
+        fileBoard = open(fileBoard)
+        jsonBoard = json.load(fileBoard)
+    except:
+        print("Failure to open file")
+        return
+    solverBoardW = jsonBoard["boardData"][0]["boardW"]
+    solverBoardH = jsonBoard["boardData"][1]["boardH"]
+    solverJSONArray = np.array(jsonBoard["boardArray"])
+    for i in range(solverBoardH):
+        tempGroup = Group()
+        tempArray = np.array([],ndmin=1)
+        for o in range(solverBoardW):
+            #print(i,o,playBoardW,playBoardH)
+            if solverJSONArray[i,o] == 2:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey"))
+            elif solverJSONArray[i,o] == 1:
+                #print(playBoardArray[i,o])
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="black",border="grey"))
+            else:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
+            if i == 0:
+                solverBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90))
+        solverBoard.add(tempGroup)
+        solverBoardNumbersY.add(Label("0",95,150+(i*50),align="right",font="Archivo",size=25))
+    solverBoard.toBack()
+    solverBoardNumbersX.toBack()
+    solverBoardNumbersY.toBack()
+    solverBoard.centerX = 960
+    solverBoard.centerY = 450
+    solverBoardNumbersX.bottom = solverBoard.top - 5
+    solverBoardNumbersX.centerX = solverBoard.centerX
+    solverBoardNumbersY.right = solverBoard.left - 1
+    solverBoardNumbersY.centerY = solverBoard.centerY
+    solverSolverUpdateText()
+    pass
+
+def solverSolverShowSize():
+    solverFieldHeight.visible = True
+    solverFieldHeightText.visible = True
+    solverFieldWidth.visible = True
+    solverFieldWidthText.visible = True
+    solverFieldXText.visible = True
+    solverFieldYText.visible = True
+
+def solverSolverCreatePrereq():
+    global testingList
+    solverBoard.clear()
+    solverBoardNumbersX.clear()
+    solverBoardNumbersY.clear()
+    solverPrereq.clear()
+    solverPrereqLabels.clear()
+    for i in range(solverSolverSizeX):
+        solverPrereq.add(Rect(200+(i*210),200,200,100,fill=None,border="red"))
+        testingList.append(Label("0",300+(i*210),250,size=30))
+    for i in range(solverSolverSizeY):
+        solverPrereq.add(Rect(100,330+(i*120),200,100,fill=None,border="blue"))
+        testingList.append(Label("0",200,380+(i*120),size=30))
+
+def solverGoshThereAreSoManyFunctions():
+    global solverSolverArray
+    tooManyCounters = -1
+    solverY = []
+    solverX = []
+    for j in solverPrereq:
+        tooManyCounters += 1
+        if j.border == "red":
+            solverX.append((testingList[tooManyCounters].value).split(","))
+        if j.border == "blue":
+            solverY.append((testingList[tooManyCounters].value).split(","))
+    for h in range(len(solverX)):
+        for j in range(len(solverX[h])):
+            solverX[h][j] = int(solverX[h][j])
+    for h in range(len(solverY)):
+        for j in range(len(solverY[h])):
+            solverY[h][j] = int(solverY[h][j])
+    print(solverX,solverY)
+    solverSolverArray = ns.initalize(solverY,solverX,[len(solverX),len(solverY)])
+    solverCreateBoardSolver()
+        
+
+def solverCreateBoardSolver():
+    global solverSolverArray
+    global testingList
+    solverPrereq.clear()
+    for q in testingList:
+        q.visible = False
+    testingList = []
+    solverBoard.clear()
+    solverBoardNumbersY.clear()
+    solverBoardNumbersX.clear()
+    solverBoardW = len(solverSolverArray[0])
+    solverBoardH = len(solverSolverArray[:,0])
+    for i in range(solverBoardH):
+        tempGroup = Group()
+        for o in range(solverBoardW):
+            #print(i,o,playBoardW,playBoardH)
+            if solverSolverArray[i,o] == 2:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey"))
+            elif solverSolverArray[i,o] == 1:
+                #print(playBoardArray[i,o])
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="black",border="grey"))
+            else:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
+            if i == 0:
+                solverBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90))
+        solverBoard.add(tempGroup)
+        solverBoardNumbersY.add(Label("0",95,150+(i*50),align="right",font="Archivo",size=25))
+    solverBoard.toBack()
+    solverBoardNumbersX.toBack()
+    solverBoardNumbersY.toBack()
+    solverBoard.centerX = 960
+    solverBoard.centerY = 450
+    solverBoardNumbersX.bottom = solverBoard.top - 5
+    solverBoardNumbersX.centerX = solverBoard.centerX
+    solverBoardNumbersY.right = solverBoard.left - 1
+    solverBoardNumbersY.centerY = solverBoard.centerY
+    solverSolverUpdateText()
+    pass
 
 def updateText():
     iN = -1
@@ -318,6 +609,7 @@ def updateText():
         else:
             i.value = finalStr
         i.bottom = createBoard.top - 5
+
 def hideCreate():
     createBoard.visible = False
     fieldHeight.visible = False
@@ -328,6 +620,20 @@ def hideCreate():
     fieldWidthText.visible = False
     createBoardNumbersX.visible = False
     createBoardNumbersY.visible = False
+
+def hideSolver():
+    solverBoard.visible = False
+    solverPrereq.visible = False
+    solverBoardNumbersX.visible = False
+    solverBoardNumbersY.visible = False
+    solverPrereqLabels.visible = False
+
+def showSolver():
+    solverBoard.visible = True
+    solverPrereq.visible = True
+    solverPrereqLabels.visible = True
+    solverBoardNumbersX.visible = True
+    solverBoardNumbersY.visible = True
 
 def showPlayConfig():
     greyOut.visible = True
@@ -517,6 +823,18 @@ def onMousePress(mX,mY,button):
     global penalize
     if xMark.contains(mX,mY):
         hideConfigs()
+    elif solverPrereqLabels.visible:
+        for h in solverPrereq:
+            try:
+                for t in solverPrereq:
+                    if t.fill == None:
+                        pass
+                    else:
+                        raise
+                if h.contains(mX,mY):
+                    h.fill = rgb(255,200,255)
+            except:
+                pass
     elif titleCreateGUI.visible:
         print()
     elif titlePlayGUI.visible:
@@ -547,14 +865,22 @@ def onMousePress(mX,mY,button):
         showCreate()
         hidePlay()
         hideInfo()
+        hideSolver()
     elif buttonInfo.contains(mX,mY):
         hideCreate()
         hidePlay()
         showInfo()
+        hideSolver()
     elif buttonPlay.contains(mX,mY):
         hideCreate()
         showPlay()
         hideInfo()
+        hideSolver()
+    elif buttonSolver.contains(mX,mY):
+        hideCreate()
+        hidePlay()
+        hideInfo()
+        showSolver()
     if createBoard.visible:
         if not greyOut.visible:
             if fieldWidth.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
@@ -664,7 +990,13 @@ def onMousePress(mX,mY,button):
                 if np.array_equal(playBoardArray,playBoardSelected):
                     #print("ya win buster!")
                     winCelebration.visible = True
-
+    if solverBoard.visible:
+        if solverFieldWidth.contains(mX,mY) and not solverFieldWidth.selected and not solverFieldHeight.selected:
+                solverFieldWidth.selected = True
+                solverFieldWidth.fill = rgb(255,200,255)
+        elif solverFieldHeight.contains(mX,mY) and not solverFieldWidth.selected and not solverFieldHeight.selected:
+            solverFieldHeight.selected = True
+            solverFieldHeight.fill = rgb(255,200,255)
 
 def createExportBoard():
     createBoardJson = {
@@ -683,6 +1015,103 @@ def createExportBoard():
 def onKeyPress(key):
     global createSizeX
     global createSizeY
+    global solverSolverSizeY
+    global solverSolverSizeX
+    if solverBoard.visible:
+        if key == "up":
+            solverBoard.centerY -= 10
+            solverBoardNumbersX.centerY -= 10
+            solverBoardNumbersY.centerY -= 10
+            solverPrereq.centerY -= 10
+        if key == "down":
+            solverBoard.centerY += 10
+            solverBoardNumbersX.centerY += 10
+            solverBoardNumbersY.centerY += 10
+            solverPrereq.centerY += 10
+        if key == "left":
+            solverBoard.centerX -= 10
+            solverBoardNumbersX.centerX -= 10
+            solverBoardNumbersY.centerX -= 10
+            solverPrereq.centerX -= 10
+        if key == "right":
+            solverBoard.centerX += 10
+            solverBoardNumbersX.centerX += 10
+            solverBoardNumbersY.centerX += 10
+            solverPrereq.centerX += 10
+        try:
+            solverPrereq.fill == None 
+            for t in solverPrereq:
+                if t.fill == None:
+                    pass
+                else:
+                    raise
+            #print("Woah")
+        except: # Could be optimized for my newer system. Remind me later
+            #print("Hi")
+            FREEME = -1
+            for u in solverPrereq:
+                FREEME += 1
+                if u.fill == rgb(255,200,255):
+                    #print(u,FREEME)
+                    if key.isnumeric():
+                        testingList[FREEME].value = testingList[FREEME].value + key
+                    if key == ",":
+                        testingList[FREEME].value = testingList[FREEME].value + key
+                    if key == "backspace":
+                        try:
+                            testingList[FREEME].value = testingList[FREEME].value[:-1]
+                        except:
+                            print("Failure to shorten text")
+                            return
+                    if key == "enter":
+                        try:
+                            u.fill = None
+                        except:
+                            return
+        if key == "r":
+            #print(solverSolverSizeX,solverSolverSizeY)
+            solverSolverCreatePrereq()
+        if key == "j":
+            solverCreateBoardJSON()
+        if key == "b":
+            solverGoshThereAreSoManyFunctions()
+        if key == "g":
+            solverSolverShowSize()
+        if solverFieldWidth.selected:
+            if key.isnumeric():
+                if int(solverFieldWidthText.value + key) <= 20:
+                    solverFieldWidthText.value = solverFieldWidthText.value + key
+            if key == "backspace":
+                try:
+                    solverFieldWidthText.value = solverFieldWidthText.value[:-1]
+                except:
+                    print("Failure to shorten text")
+                    return
+            if key == "enter":
+                try:
+                    solverSolverSizeX = int(solverFieldWidthText.value)
+                    solverFieldWidth.selected = False
+                    solverFieldWidth.fill = "white"
+                except:
+                    return
+        if solverFieldHeight.selected:
+            if key.isnumeric():
+                if int(solverFieldHeightText.value + key) <= 20:
+                    solverFieldHeightText.value = solverFieldHeightText.value + key
+            if key == "backspace":
+                try:
+                    solverFieldHeightText.value = solverFieldHeightText.value[:-1]
+                except:
+                    print("Failure to shorten text")
+                    return
+            if key == "enter":
+                try:
+                    solverSolverSizeY = int(solverFieldHeightText.value)
+                    solverFieldHeight.selected = False
+                    solverFieldHeight.fill = "white"
+                except:
+                    return
+
     if playBoard.visible:
         if key == "c":
             showPlayConfig()
