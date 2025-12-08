@@ -823,6 +823,26 @@ def onMousePress(mX,mY,button):
     global penalize
     if xMark.contains(mX,mY):
         hideConfigs()
+    elif buttonCreate.contains(mX,mY):
+        showCreate()
+        hidePlay()
+        hideInfo()
+        hideSolver()
+    elif buttonInfo.contains(mX,mY):
+        hideCreate()
+        hidePlay()
+        showInfo()
+        hideSolver()
+    elif buttonPlay.contains(mX,mY):
+        hideCreate()
+        showPlay()
+        hideInfo()
+        hideSolver()
+    elif buttonSolver.contains(mX,mY):
+        hideCreate()
+        hidePlay()
+        hideInfo()
+        showSolver()
     elif solverPrereqLabels.visible:
         for h in solverPrereq:
             try:
@@ -861,26 +881,6 @@ def onMousePress(mX,mY,button):
                     checkmarkPenalize.fill = "red"
                 else:
                     checkmarkPenalize.fill = "white"
-    elif buttonCreate.contains(mX,mY):
-        showCreate()
-        hidePlay()
-        hideInfo()
-        hideSolver()
-    elif buttonInfo.contains(mX,mY):
-        hideCreate()
-        hidePlay()
-        showInfo()
-        hideSolver()
-    elif buttonPlay.contains(mX,mY):
-        hideCreate()
-        showPlay()
-        hideInfo()
-        hideSolver()
-    elif buttonSolver.contains(mX,mY):
-        hideCreate()
-        hidePlay()
-        hideInfo()
-        showSolver()
     if createBoard.visible:
         if not greyOut.visible:
             if fieldWidth.contains(mX,mY) and not fieldWidth.selected and not fieldHeight.selected:
