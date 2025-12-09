@@ -473,8 +473,11 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
         except:
             solverArray = tempArray
     for h in knownEmpty:
-        print(h,h[0],h[1])
-        solverArray[int(h[0])-1,int(h[1])-1] = 2
+        try:
+            print(h,h[0],h[1])
+            solverArray[int(h[0])-1,int(h[1])-1] = 2
+        except:
+            print("Known Empty is either empty or missing values.")
     checkingArray = solverArray.copy()
     while not death:
         print("Checking Lane Exact")
