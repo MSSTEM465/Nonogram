@@ -461,7 +461,7 @@ for testingtree in testingTreeArray:
             testingTreeArray[debuggingNumber3,debuggingNumber4] = 2
             
 
-def initalize(hN,wN,size): #heightNumbers,widthNumbers,size, all expects lists, size must be in [height,width]
+def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all expects lists, size must be in [height,width]
     solverArray = np.array(([],[]),ndmin=2)
     death = False
     for height in range(size[0]):
@@ -472,6 +472,9 @@ def initalize(hN,wN,size): #heightNumbers,widthNumbers,size, all expects lists, 
             solverArray = np.vstack((solverArray, tempArray))
         except:
             solverArray = tempArray
+    for h in knownEmpty:
+        print(h,h[0],h[1])
+        solverArray[int(h[0])-1,int(h[1])-1] = 2
     checkingArray = solverArray.copy()
     while not death:
         print("Checking Lane Exact")
@@ -848,6 +851,7 @@ def bruteforce(hN,wN,array):
             #print(counterX,counterY)
     if calculations >= 1000:
         print("Failure to bruteforce. Ending code.")
+        return array
         #tempBruteArray = geminiBruteforce(hN,wN,array)
     return tempBruteArray
 

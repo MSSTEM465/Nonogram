@@ -78,6 +78,9 @@ solverFieldHeight = Rect(960,980,200,75,border="black",fill=None,visible = False
 solverFieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,size=30,font="Archivo",visible = False)
 solverFieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo",visible = False)
 solverFieldHeight.selected = False
+solverKnownFillField = Rect(500,500,200,100,border="black",fill=None,visible=False)
+solverKnownFillField.selected = False
+solverKnownFillText = Label(";",solverKnownFillField.centerX,solverKnownFillField.centerY,size=30,font="Archivo",visible = False)
 
 
 playBoard = Group()
@@ -423,6 +426,12 @@ def solverCreateBoardJSON():
     solverBoard.clear()
     solverBoardNumbersY.clear()
     solverBoardNumbersX.clear()
+    solverFieldHeight.visible = False
+    solverFieldHeightText.visible = False
+    solverFieldWidth.visible = False
+    solverFieldWidthText.visible = False
+    solverFieldXText.visible = False
+    solverFieldYText.visible = False
     try:
         fileBoard = prompter.file()
         fileBoard = open(fileBoard)
@@ -458,7 +467,7 @@ def solverCreateBoardJSON():
     solverBoardNumbersX.centerX = solverBoard.centerX
     solverBoardNumbersY.right = solverBoard.left - 1
     solverBoardNumbersY.centerY = solverBoard.centerY
-    solverSolverUpdateText()
+    solverJSONUpdateText()
     pass
 
 def solverSolverShowSize():
@@ -476,14 +485,17 @@ def solverSolverCreatePrereq():
     solverBoardNumbersY.clear()
     solverPrereq.clear()
     solverPrereqLabels.clear()
+    solverKnownFillField.visible = True
+    solverKnownFillText.visible = True
     for i in range(solverSolverSizeX):
         solverPrereq.add(Rect(200+(i*210),200,200,100,fill=None,border="red"))
         testingList.append(Label("0",300+(i*210),250,size=30))
     for i in range(solverSolverSizeY):
         solverPrereq.add(Rect(100,330+(i*120),200,100,fill=None,border="blue"))
         testingList.append(Label("0",200,380+(i*120),size=30))
+    
 
-def solverGoshThereAreSoManyFunctions():
+def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solves from there
     global solverSolverArray
     tooManyCounters = -1
     solverY = []
@@ -500,8 +512,13 @@ def solverGoshThereAreSoManyFunctions():
     for h in range(len(solverY)):
         for j in range(len(solverY[h])):
             solverY[h][j] = int(solverY[h][j])
-    print(solverX,solverY)
-    solverSolverArray = ns.initalize(solverY,solverX,[len(solverX),len(solverY)])
+    solverKnownList = (solverKnownFillText.value).split(";")
+    cOu = -1
+    for g in solverKnownList:
+        cOu += 1
+        solverKnownList[cOu] = g.split(",")
+    print(solverX,solverY,solverKnownList)
+    solverSolverArray = ns.initalize(solverY,solverX,[len(solverX),len(solverY)],solverKnownList)
     solverCreateBoardSolver()
         
 
@@ -515,6 +532,8 @@ def solverCreateBoardSolver():
     solverBoard.clear()
     solverBoardNumbersY.clear()
     solverBoardNumbersX.clear()
+    solverKnownFillText.visible = False
+    solverKnownFillField.visible = False
     solverBoardW = len(solverSolverArray[0])
     solverBoardH = len(solverSolverArray[:,0])
     for i in range(solverBoardH):
@@ -627,6 +646,15 @@ def hideSolver():
     solverBoardNumbersX.visible = False
     solverBoardNumbersY.visible = False
     solverPrereqLabels.visible = False
+    solverFieldHeight.visible = False
+    solverFieldHeightText.visible = False
+    solverFieldWidth.visible = False
+    solverFieldWidthText.visible = False
+    solverFieldXText.visible = False
+    solverFieldYText.visible = False
+    solverKnownFillText.visible = False
+    solverKnownFillField.visible = False
+
 
 def showSolver():
     solverBoard.visible = True
@@ -997,6 +1025,9 @@ def onMousePress(mX,mY,button):
         elif solverFieldHeight.contains(mX,mY) and not solverFieldWidth.selected and not solverFieldHeight.selected:
             solverFieldHeight.selected = True
             solverFieldHeight.fill = rgb(255,200,255)
+        elif solverKnownFillField.contains(mX,mY) and not solverFieldWidth.selected and not solverFieldHeight.selected and not solverKnownFillField.selected:
+            solverKnownFillField.selected = True
+            solverKnownFillField.fill = rgb(255,200,255)
 
 def createExportBoard():
     createBoardJson = {
@@ -1022,22 +1053,38 @@ def onKeyPress(key):
             solverBoard.centerY -= 10
             solverBoardNumbersX.centerY -= 10
             solverBoardNumbersY.centerY -= 10
+            solverKnownFillField.centerY -= 10
+            solverKnownFillText.centerY -= 10
             solverPrereq.centerY -= 10
+            for h in testingList: # Slowly I regret substituting the text to be a list instead of a group
+                h.centerY -= 10
         if key == "down":
             solverBoard.centerY += 10
             solverBoardNumbersX.centerY += 10
             solverBoardNumbersY.centerY += 10
             solverPrereq.centerY += 10
+            solverKnownFillField.centerY += 10
+            solverKnownFillText.centerY += 10
+            for h in testingList:
+                h.centerY += 10
         if key == "left":
             solverBoard.centerX -= 10
             solverBoardNumbersX.centerX -= 10
             solverBoardNumbersY.centerX -= 10
             solverPrereq.centerX -= 10
+            solverKnownFillField.centerX -= 10
+            solverKnownFillText.centerX -= 10
+            for h in testingList:
+                h.centerX -= 10
         if key == "right":
             solverBoard.centerX += 10
             solverBoardNumbersX.centerX += 10
             solverBoardNumbersY.centerX += 10
             solverPrereq.centerX += 10
+            solverKnownFillField.centerX += 10
+            solverKnownFillText.centerX += 10
+            for h in testingList:
+                h.centerX += 10
         try:
             solverPrereq.fill == None 
             for t in solverPrereq:
@@ -1111,6 +1158,23 @@ def onKeyPress(key):
                     solverFieldHeight.fill = "white"
                 except:
                     return
+        if solverKnownFillField.selected:
+            if key.isnumeric():
+                solverKnownFillText.value = solverKnownFillText.value + key
+            if key == "backspace":
+                try:
+                    solverKnownFillText.value = solverKnownFillText.value[:-1]
+                except:
+                    print("Failure to shorten text")
+                    return
+            if key == "enter":
+                try:
+                    solverKnownFillField.selected = False
+                    solverKnownFillField.fill = "white"
+                except:
+                    return
+            if key == "," or key == ";":
+                solverKnownFillText.value = solverKnownFillText.value + key
 
     if playBoard.visible:
         if key == "c":
