@@ -725,6 +725,7 @@ def hidePlay():
     winCelebration.visible = False
     playBoardNumbersX.visible = False
     playBoardNumbersY.visible = False
+    wrongThing.visible = False
 
 def updatePenalizeText():
     if penalize:
@@ -1255,6 +1256,60 @@ def onKeyPress(key):
                 except:
                     return
 
-
+def onKeyHold(keys):
+    if solverBoard.visible:
+        if "up" in keys:
+            solverBoard.centerY -= 10
+            solverBoardNumbersX.centerY -= 10
+            solverBoardNumbersY.centerY -= 10
+            solverKnownFillField.centerY -= 10
+            solverKnownFillText.centerY -= 10
+            solverPrereq.centerY -= 10
+            for h in testingList: # Slowly I regret substituting the text to be a list instead of a group
+                h.centerY -= 10
+        if "down" in keys:
+            solverBoard.centerY += 10
+            solverBoardNumbersX.centerY += 10
+            solverBoardNumbersY.centerY += 10
+            solverPrereq.centerY += 10
+            solverKnownFillField.centerY += 10
+            solverKnownFillText.centerY += 10
+            for h in testingList:
+                h.centerY += 10
+        if "left" in keys:
+            solverBoard.centerX -= 10
+            solverBoardNumbersX.centerX -= 10
+            solverBoardNumbersY.centerX -= 10
+            solverPrereq.centerX -= 10
+            solverKnownFillField.centerX -= 10
+            solverKnownFillText.centerX -= 10
+            for h in testingList:
+                h.centerX -= 10
+        if "right" in keys:
+            solverBoard.centerX += 10
+            solverBoardNumbersX.centerX += 10
+            solverBoardNumbersY.centerX += 10
+            solverPrereq.centerX += 10
+            solverKnownFillField.centerX += 10
+            solverKnownFillText.centerX += 10
+            for h in testingList:
+                h.centerX += 10
+    if playBoard.visible:
+        if "up" in keys:
+            playBoard.centerY -= 10
+            playBoardNumbersX.centerY -= 10
+            playBoardNumbersY.centerY -= 10
+        if "down" in keys:
+            playBoard.centerY += 10
+            playBoardNumbersX.centerY += 10
+            playBoardNumbersY.centerY += 10
+        if "left" in keys:
+            playBoard.centerX -= 10
+            playBoardNumbersX.centerX -= 10
+            playBoardNumbersY.centerX -= 10
+        if "right" in keys:
+            playBoard.centerX += 10
+            playBoardNumbersX.centerX += 10
+            playBoardNumbersY.centerX += 10
 
 cmu_graphics.run()
