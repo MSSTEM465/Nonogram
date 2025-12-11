@@ -7,6 +7,8 @@ import promptlib
 import tkinter as tk
 from tkinter import filedialog
 import nonogramsolver as ns
+import images as im
+import base64
 
 prompter = promptlib.Files()
 
@@ -91,6 +93,7 @@ winCelebration = Label("Nonogram Solved!",300,540,size=50,font="Archivo",fill="g
 wrongThing = Label("Thats wrong!",300,300,size=50,font="Archivo",fill="Red",visible=False)
 playTutorial1 = Label("Press J to select a JSON file",1720,500,visible=False,size=40)
 playTutorial2 = Label("Press the squares to fill in",1680,540,visible=False,size=40)
+playTutorialMouse = Image("data/Mouse Play.png",1400,200,visible = False)
 
 info = Group(
     Label("Nonogram is a puzzle that uses a grid and numbers on the edges to reveals a hidden image,",940,200,size=30),
@@ -299,6 +302,7 @@ def tutorialCreateBoard(): # Uses play board
     playUpdateText()
 
 
+
 def playCreateBoard():
     global playBoardArray
     global playBoardSelected
@@ -420,6 +424,8 @@ def playUpdateText():
         else:
             i.value = finalStr
         i.bottom = playBoard.top - 5
+
+
 
 def solverJSONUpdateText():
     iN = -1
@@ -628,7 +634,6 @@ def solverSolverCreatePrereq():
         solverPrereq.add(Rect(100,330+(i*120),200,100,fill=None,border="blue"))
         testingList.append(Label("0",200,380+(i*120),size=30))
     
-
 def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solves from there
     global solverSolverArray
     tooManyCounters = -1
@@ -655,7 +660,6 @@ def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solv
     solverSolverArray = ns.initalize(solverY,solverX,[len(solverX),len(solverY)],solverKnownList)
     solverCreateBoardSolver()
         
-
 def solverCreateBoardSolver():
     global solverSolverArray
     global testingList
@@ -696,6 +700,8 @@ def solverCreateBoardSolver():
     solverBoardNumbersY.centerY = solverBoard.centerY
     solverSolverUpdateText()
     pass
+
+
 
 def updateText():
     iN = -1
@@ -789,7 +795,6 @@ def hideSolver():
     solverKnownFillText.visible = False
     solverKnownFillField.visible = False
 
-
 def showSolver():
     solverBoard.visible = True
     solverPrereq.visible = True
@@ -828,6 +833,8 @@ def hideConfigs():
     settingPenalize.visible = False
     checkmarkPenalize.visible = False
 
+
+
 def showInfo():
     info.visible = True
 
@@ -851,6 +858,7 @@ def showPlay():
     playBoardNumbersY.visible = True
     playTutorial1.visible = True
     playTutorial2.visible = True
+    playTutorialMouse.visible = True
 
 def hidePlay():
     playTutorial1.visible = False
@@ -860,6 +868,7 @@ def hidePlay():
     playBoardNumbersX.visible = False
     playBoardNumbersY.visible = False
     wrongThing.visible = False
+    playTutorialMouse.visible = False
 
 def updatePenalizeText():
     if penalize:
@@ -981,8 +990,6 @@ def onMouseDrag(mX,mY,button):
                 else:
                     winCelebration.visible = True
         
-
-
 def onMousePress(mX,mY,button):
     global autofill
     global correction
@@ -998,6 +1005,7 @@ def onMousePress(mX,mY,button):
                 speechNext.visible = False
                 whiteOutTut.visible = False
                 speechBubble.tutCurrent = False
+                playTutorialMouse.visible = False
                 playBoard.clear()
                 playBoardNumbersX.clear()
                 playBoardNumbersY.clear()
@@ -1037,6 +1045,7 @@ def onMousePress(mX,mY,button):
                 speechText.visible = False
                 speechBubble.visible = False
                 speechNext.visible = False
+                playTutorialMouse.visible = True
             print(speechText.count)
             adjustSpeechBubbleSize()
         if speechText.count == 23:
