@@ -50,7 +50,6 @@ solverSolverArray = np.array(([],[]),ndmin=2)
 solverY = []
 solverX = []
 
-
 createBoard = Group()
 createBoard.visible = False
 createBoardNumbersX = Group()
@@ -81,7 +80,6 @@ solverFieldHeight.selected = False
 solverKnownFillField = Rect(500,500,200,100,border="black",fill=None,visible=False)
 solverKnownFillField.selected = False
 solverKnownFillText = Label(";",solverKnownFillField.centerX,solverKnownFillField.centerY,size=30,font="Archivo",visible = False)
-
 
 playBoard = Group()
 playBoard.visible = False
@@ -132,7 +130,45 @@ titleCreateGUI = Label("Create Mode Settings",1920/2,230,size=40,visible = False
 #checkmarkAutofill = Rect(400,320,100,100,fill="white",border="black",borderWidth=3)
 #settingAutofill = Label("Autofill Lane",600,370,size=30)
 #checkmarkCorrection = Rect(400,440,100,100,fill="white",border="black",borderWidth=3)
-#settingCorrection = Label("Correction",600,490,size=30)
+#settingCorrection = Label("Correction",600,490,size=30)\
+
+whiteOutTut = Rect(0,0,1920,1080,fill='white',opacity=90,visible=False)
+speechBubble = Polygon(100,100, 150,150, 700,150, 700,400, 150,400, 150,200,fill="white",border="black",visible=False)
+speechBubble.tutCurrent = False
+speechText = Label("Welcome to my Nonogram program!",speechBubble.centerX,speechBubble.centerY+20,size=40,font="Archivo",visible=False)
+speechText.count = 0
+speechNext = Polygon(0,0, 20,0, 10,20, fill="white",border="black",visible = False)
+dialogue = ["Welcome to Nonograms!", "Nonogram is a puzzle game about uncovering a black and white image.","You are given a grid, and numbers for the rows and columns.","If you can't tell, the numbers will help you solve the grid.","The numbers next to the row/column explains the length","of runs or unbroken cells in that lane. We represent those with", "the color black. You can color cells with black with left click.","Right click will fill it blue, which will mean you think its empty.","Sometimes, you might encounter a red cell. That means it is set","as empty from the artist of the nonogram.","The best way of learning nonograms is practice!","Lets place you into a simple board of a nonogram.", "On this board, we can solve by applying what we know,","then filling in what was satisified, Then, we continue","finding places that we can solve.","Look at the top row, you see how it says (1,1,1)?","This must mean that the lane must have one cell,","atleast one empty slot, one cell, empty, cell.","Wait a moment, that pattern! Fill, empty, fill, empty, fill,","at the very minimum, the length of the lane will be 5,", "which is the same length as our lane!","We can fill in the lane with this pattern.","Try solving the rest of the puzzle!","Congrats! You solved your first nonogram.","From here on out, you can access all facutilies of the app.", "Have fun!"]
+
+
+
+def adjustSpeechBubbleSize():
+    speechText.left = speechBubble.x2 + 20
+    speechBubble.x3 = speechText.right + 20
+    speechBubble.x4 = speechText.right + 20
+    speechNext.right = speechBubble.right - 20
+    speechNext.bottom = speechBubble.bottom - 20
+
+def initalizeTutorial():
+    whiteOutTut.visible = True
+    speechBubble.visible = True
+    speechText.visible = True
+    speechBubble.tutCurrent = True
+    speechNext.visible = True
+    info.visible = False
+    speechText.value = "Welcome to Nonograms!"
+    adjustSpeechBubbleSize()
+
+def checkFirstTimeLaunch():
+    try:
+        f = open("hasPlayed.txt")
+        return False
+    except:
+        f = open("hasPlayed.txt","x")
+        return True
+
+if checkFirstTimeLaunch():
+    initalizeTutorial()
 
 def createCreateBoard():
     global createBoardSelected
@@ -164,6 +200,104 @@ def createCreateBoard():
     createBoardNumbersY.centerY = createBoard.centerY
     #createBoardNumbers.bottomY = createBoard.topY
     #print(createBoardSelected)
+
+treeJSON = """{
+    "boardData": [
+        {
+            "boardW": 5
+        },
+        {
+            "boardH": 5
+        }
+    ],
+    "boardArray": [
+        [
+            1.0,
+            0.0,
+            1.0,
+            0.0,
+            1.0
+        ],
+        [
+            0.0,
+            1.0,
+            0.0,
+            1.0,
+            0.0
+        ],
+        [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+        ],
+        [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+        ],
+        [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+        ]
+    ]
+}"""
+
+def tutorialCreateBoard(): # Uses play board
+    global playBoardArray
+    global playBoardSelected
+    global lives
+    global lastEntered
+    playBoard.clear()
+    playBoardNumbersY.clear()
+    playBoardNumbersX.clear()
+    winCelebration.visible = False
+    lives = 5
+    lastEntered = [-1,-1]
+    playBoardSelected = np.array(([],[]),ndmin=2)
+    jsonBoard = json.loads(treeJSON)
+    playBoardW = 5
+    playBoardH = 5
+    playBoardArray = np.array(jsonBoard["boardArray"])
+    for i in range(playBoardH):
+        tempGroup = Group()
+        tempArray = np.array([],ndmin=1)
+        for o in range(playBoardW):
+            #print(i,o,playBoardW,playBoardH)
+            if playBoardArray[i,o] == 2:
+                tempArray = np.append(tempArray,[2])
+            else:
+                tempArray = np.append(tempArray,[0])
+            if playBoardArray[i,o] == 2:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey"))
+            else:
+                #print(playBoardArray[i,o])
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
+            if i == 0:
+                playBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90)) # God forbid supporting \n! Guess I must force users to tilt their heads
+        try:
+            playBoardSelected = np.vstack((playBoardSelected, tempArray))
+        except:
+            playBoardSelected = tempArray
+        playBoard.add(tempGroup)
+        playBoardNumbersY.add(Label("0",95,150+(i*50),align="right",font="Archivo",size=25))
+    playBoard.toBack()
+    playBoardNumbersX.toBack()
+    playBoardNumbersY.toBack()
+    playBoard.centerX = 960
+    playBoard.centerY = 700
+    playBoardNumbersX.bottom = playBoard.top - 5
+    playBoardNumbersX.centerX = playBoard.centerX
+    playBoardNumbersY.right = playBoard.left - 1
+    playBoardNumbersY.centerY = playBoard.centerY
+    playUpdateText()
+
 
 def playCreateBoard():
     global playBoardArray
@@ -837,11 +971,16 @@ def onMouseDrag(mX,mY,button):
                                         for v in c:
                                             if v.fill == None:
                                                 v.fill = "blue"
-
+            
             if np.array_equal(playBoardArray,playBoardSelected):
-                #print("ya win buster!")
-                winCelebration.visible = True
-    
+                if speechBubble.tutCurrent:
+                    speechBubble.visible = True
+                    speechNext.visible = True
+                    speechText.visible = True
+                    whiteOutTut.visible = True
+                else:
+                    winCelebration.visible = True
+        
 
 
 def onMousePress(mX,mY,button):
@@ -850,6 +989,118 @@ def onMousePress(mX,mY,button):
     global lives
     global lastEntered
     global penalize
+    if speechBubble.tutCurrent:
+        if speechBubble.contains(mX,mY):
+            speechText.count += 1
+            if speechText.count == 26:
+                speechText.visible = False
+                speechBubble.visible = False
+                speechNext.visible = False
+                whiteOutTut.visible = False
+                speechBubble.tutCurrent = False
+                playBoard.clear()
+                playBoardNumbersX.clear()
+                playBoardNumbersY.clear()
+                playBoard.visible = False
+                playBoardNumbersY.visible = False
+                playBoardNumbersX.visible = False
+                info.visible = True
+                return
+            speechText.value = dialogue[speechText.count]
+            if speechText.count == 12:
+                tutorialCreateBoard()
+                whiteOutTut.visible = False
+                playBoard.visible = True
+                playBoardNumbersX.visible = True
+                playBoardNumbersY.visible = True
+            if speechText.count == 15:
+                countoml = -1
+                for i in playBoard:
+                    for g in i:
+                        countoml += 1
+                        if countoml < 5:
+                            g.border = "blue"
+            if speechText.count == 21:
+                countoml = -1
+                for i in playBoard:
+                    for g in i:
+                        countoml += 1
+                        if countoml == 0 or countoml == 2 or countoml == 4:
+                            g.fill = "black"
+                        if countoml == 1 or countoml == 3:
+                            g.fill = "blue"
+                        g.border = "grey"
+                        playBoardSelected[0,0] = 1
+                        playBoardSelected[0,2] = 1
+                        playBoardSelected[0,4] = 1
+            if speechText.count == 23:
+                speechText.visible = False
+                speechBubble.visible = False
+                speechNext.visible = False
+            print(speechText.count)
+            adjustSpeechBubbleSize()
+        if speechText.count == 23:
+            if playBoard.visible:
+                if not greyOut.visible:
+                    if playBoard.contains(mX,mY):
+                        rN = -1
+                        tN = -1
+                        for r in playBoard:
+                            rN +=1
+                            tN = -1
+                            for t in r:
+                                tN += 1
+                                if t.contains(mX,mY):
+                                    if button == 2:
+                                        if t.fill == None or t.fill == "black":
+                                            t.fill = "blue"
+                                            playBoardSelected[rN,tN] = 0
+                                        elif t.fill == "blue":
+                                            t.fill = None
+                                            playBoardSelected[rN,tN] = 0
+                                        wrongThing.visible = False
+                                    elif button == 0:
+                                        if t.fill == None or t.fill == "blue":
+                                            t.fill="black"
+                                            playBoardSelected[rN,tN] = 1
+                                        elif t.fill == "black":
+                                            t.fill = None
+                                            playBoardSelected[rN,tN] = 0
+                                        wrongThing.visible = False # I'm writing YanDev code here at this point
+                                    if autofill:
+                                        #print("Failure Point 1",playBoardSelected[:, tN],playBoardArray[:, tN])
+                                        if np.array_equal(playBoardSelected[:, tN],playBoardArray[:, tN]): # This is ugly code. Sorry
+                                            #print("Failure Point 2")
+                                            #print(len(playBoardArray[:,0]))
+                                            countauto = -1
+                                            countvert = -1
+                                            preventions = 0
+                                            for k in playBoard:
+                                                countvert += 1
+                                                for l in k:
+                                                    if preventions == countvert:
+                                                        countauto += 1
+                                                    #print(tN,countauto,preventions,countvert)
+                                                    if tN == countauto and preventions == countvert:
+                                                        preventions += 1
+                                                        countauto = -1
+                                                        if l.fill == None:
+                                                            l.fill = "blue"
+                                        if np.array_equal(playBoardSelected[rN],playBoardArray[rN]):
+                                            countvert2 = -1
+                                            for c in playBoard:
+                                                countvert2 += 1
+                                                if countvert2 == rN:
+                                                    for v in c:
+                                                        if v.fill == None:
+                                                            v.fill = "blue"
+                        #print(playBoardSelected)
+                        if np.array_equal(playBoardArray,playBoardSelected):
+                            speechBubble.visible = True
+                            speechNext.visible = True
+                            speechText.visible = True
+                            whiteOutTut.visible = True
+        return
     if xMark.contains(mX,mY):
         hideConfigs()
     elif buttonCreate.contains(mX,mY):
@@ -1311,5 +1562,15 @@ def onKeyHold(keys):
             playBoard.centerX += 10
             playBoardNumbersX.centerX += 10
             playBoardNumbersY.centerX += 10
+
+sND = -3
+
+def onStep():
+    global sND
+    if speechNext.visible:
+        if speechNext.height + sND > 20 or speechNext.height + sND < 0:
+            sND = sND * -1
+        speechNext.height += sND
+        speechNext.bottom = speechBubble.bottom - 20
 
 cmu_graphics.run()
