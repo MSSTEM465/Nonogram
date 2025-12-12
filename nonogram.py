@@ -1,14 +1,11 @@
 from cmu_graphics import *
 import numpy as np
-import time
-import math
 import json
 import promptlib
 import tkinter as tk
 from tkinter import filedialog
 import nonogramsolver as ns
-import images as im
-import base64
+
 
 prompter = promptlib.Files()
 
@@ -58,6 +55,9 @@ createBoardNumbersX = Group()
 createBoardNumbersX.visible = False
 createBoardNumbersY = Group()
 createBoardNumbersY.visible = False
+createTutorial = Image("data/CreateKeybinds.png",1400,50,visible = False)
+createTutorial.width = 500
+createTutorial.height = 500
 
 testingList = []
 
@@ -91,27 +91,12 @@ playBoardNumbersY = Group()
 playBoardNumbersY.visible = False
 winCelebration = Label("Nonogram Solved!",300,540,size=50,font="Archivo",fill="green",visible = False)
 wrongThing = Label("Thats wrong!",300,300,size=50,font="Archivo",fill="Red",visible=False)
-playTutorial1 = Label("Press J to select a JSON file",1720,500,visible=False,size=40)
-playTutorial2 = Label("Press the squares to fill in",1680,540,visible=False,size=40)
-playTutorialMouse = Image("data/Mouse Play.png",1400,200,visible = False)
+playTutorial = Image("data/PlayKeybinds.png",1600,200,visible=False)
+playTutorial.width = playTutorial.width * 0.55
+playTutorial.height = playTutorial.height * 0.55
+playTutorialMouse = Image('data/Mouse Play.png',1400,200,visible=False)
 
-info = Group(
-    Label("Nonogram is a puzzle that uses a grid and numbers on the edges to reveals a hidden image,",940,200,size=30),
-    Label("created by Non Ishida and James Dalgety.",940,250,size=30),
-    Label("HOW TO PLAY",940,300,size=40),
-    Label("To start a game, press the letter J on the play screen. This will allow you to open up",940,350,size=30),
-    Label("a Nonogram JSON. When opened, you will see a grid with numbers along the left and top edge.",940,400,size=30),
-    Label("Those numbers explains the length of a unbroken cell, with atleast one spacing between cells.",940,450,size=30),
-    Label("For example, if you have a row with numbers 2, 3, 8, you can expect there to be a sequence", 940,500,size=30),
-    Label("in that row that looks like 2 unbroken cells on the left, 3 unbroken cells after the 2,",940,550,size=30),
-    Label("and a long 8 cells around the right.",940,600,size=30),
-    Label("HOW TO CREATE",940,650,size=40),
-    Label("To create, open up the create tab. On the bottom allows you to determine the size of the",940,700,size=30),
-    Label("grid. Press on it, type a number from 1-20 for either, and press G to generate the nonogram.",940,750,size=30),
-    Label("Press the grid to draw your image. It will create a black cell. Press on it again to make",940,800,size=30),
-    Label("it red. A red cell is a empty cell, however persists into gameplay, telling the player that",940,850,size=30),
-    Label("it's an empty cell. This can prevent the player from solving the nonogram incorrectly.",940,900,size=30)
-)
+info = Image("data/info.png",0,115)
 
 greyOut = Rect(0,0,1920,1080,fill="white",opacity=80,visible = False)
 backgroundGUI = Rect(360,180,1200,720,fill="white",border="black",borderWidth=7,visible = False)
@@ -319,12 +304,12 @@ def playCreateBoard():
         fileBoard = prompter.file()
         fileBoard = open(fileBoard)
         jsonBoard = json.load(fileBoard)
+        playBoardW = jsonBoard["boardData"][0]["boardW"]
+        playBoardH = jsonBoard["boardData"][1]["boardH"]
+        playBoardArray = np.array(jsonBoard["boardArray"])
     except:
         print("Failure to open file")
         return
-    playBoardW = jsonBoard["boardData"][0]["boardW"]
-    playBoardH = jsonBoard["boardData"][1]["boardH"]
-    playBoardArray = np.array(jsonBoard["boardArray"])
     for i in range(playBoardH):
         tempGroup = Group()
         tempArray = np.array([],ndmin=1)
@@ -779,6 +764,7 @@ def hideCreate():
     fieldWidthText.visible = False
     createBoardNumbersX.visible = False
     createBoardNumbersY.visible = False
+    createTutorial.visible = False
 
 def hideSolver():
     solverBoard.visible = False
@@ -851,18 +837,16 @@ def showCreate():
     fieldWidthText.visible = True
     createBoardNumbersX.visible = True
     createBoardNumbersY.visible = True
+    createTutorial.visible = True
 
 def showPlay():
     playBoard.visible = True
     playBoardNumbersX.visible = True
     playBoardNumbersY.visible = True
-    playTutorial1.visible = True
-    playTutorial2.visible = True
-    playTutorialMouse.visible = True
+    playTutorial.visible = True
 
 def hidePlay():
-    playTutorial1.visible = False
-    playTutorial2.visible = False
+    playTutorial.visible = False
     playBoard.visible = False
     winCelebration.visible = False
     playBoardNumbersX.visible = False
