@@ -13,4 +13,8 @@ Keybinds:
     - B - Solve using Manual Board Numbers
     - J - Solve using JSON
   - Arrow keys to move
+
+  For me:
+    - To build:
+      - python -m PyInstaller --onefile nonogram.py
     

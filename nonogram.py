@@ -84,9 +84,23 @@ solverFieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,si
 solverFieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo",visible = False)
 solverFieldHeight.selected = False
 solverKnownFillField = Rect(500,500,200,100,border="black",fill=None,visible=False)
-solverKnownFillField.selected = False
-solverKnownFillText = Label(";",solverKnownFillField.centerX,solverKnownFillField.centerY,size=30,font="Archivo",visible = False)
+solverKnownFillField.selected = False # Remind me later to replace this variable to some other parent
 knownEmptyGrid = []
+polyArrow = Polygon(350,170, 390,170, 390,150, 420,180, 390,210, 390,190, 350,190)
+polyArrowY = Polygon(350,170, 390,170, 390,150, 420,180, 390,210, 390,190, 350,190)
+solverPrereqInfo = Group(Label("X",320,180,font="Archivo",size=35),polyArrow,Label("Y",80,350,font="Archivo",size=35),polyArrowY)
+
+polyArrow.width = 30
+polyArrow.height = 20
+polyArrow.centerX = 350
+polyArrow.centerY = 180
+polyArrowY.width = 30
+polyArrowY.height = 20
+polyArrowY.rotateAngle = 90
+polyArrowY.centerX = 80
+polyArrowY.centerY = 390
+
+solverPrereqInfo.visible = False
 
 # Playboard neccessities
 playBoard = Group()
@@ -621,14 +635,13 @@ def solverSolverCreatePrereq():
     solverPrereq.clear()
     solverPrereqLabels.clear()
     solverKnownFillField.shown = True
-    solverKnownFillField.visible = True
-    solverKnownFillText.visible = True
+    solverPrereqInfo.visible = True
     for g in testingList:
         g.visible = False
     testingList = []
     for i in range(solverSolverSizeX):
-        solverPrereq.add(Rect(200+(i*210),200,200,100,fill=None,border="red"))
-        testingList.append(Label("0",300+(i*210),250,size=30))
+        solverPrereq.add(Rect(300+(i*210),200,200,100,fill=None,border="red"))
+        testingList.append(Label("0",400+(i*210),250,size=30))
     for i in range(solverSolverSizeY):
         solverPrereq.add(Rect(100,330+(i*120),200,100,fill=None,border="blue"))
         testingList.append(Label("0",200,380+(i*120),size=30))
@@ -672,8 +685,8 @@ def solverCreateBoardSolver():
     solverBoard.clear()
     solverBoardNumbersY.clear()
     solverBoardNumbersX.clear()
-    solverKnownFillText.visible = False
-    solverKnownFillField.visible = False
+    solverPrereqInfo.visible = False
+    solverKnownFillField.shown = False
     solverBoardW = len(solverSolverArray[0])
     solverBoardH = len(solverSolverArray[:,0])
     for i in range(solverBoardH):
@@ -820,8 +833,8 @@ def hideSolver():
     solverFieldWidthText.visible = False
     solverFieldXText.visible = False
     solverFieldYText.visible = False
-    solverKnownFillText.visible = False
     solverKnownFillField.visible = False
+    solverPrereqInfo.visible = False
     for i in testingList:
         i.visible = False
 
@@ -832,8 +845,7 @@ def showSolver():
     solverBoardNumbersX.visible = True
     solverBoardNumbersY.visible = True
     if solverKnownFillField.shown:
-        solverKnownFillText.visible = True
-        solverKnownFillField.visible = True
+        solverPrereqInfo.visible = True
     for i in testingList:
         i.visible = True
 
