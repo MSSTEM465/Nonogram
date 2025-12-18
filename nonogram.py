@@ -86,6 +86,7 @@ solverFieldHeight.selected = False
 solverKnownFillField = Rect(500,500,200,100,border="black",fill=None,visible=False)
 solverKnownFillField.selected = False
 solverKnownFillText = Label(";",solverKnownFillField.centerX,solverKnownFillField.centerY,size=30,font="Archivo",visible = False)
+knownEmptyGrid = []
 
 # Playboard neccessities
 playBoard = Group()
@@ -610,6 +611,8 @@ def solverSolverShowSize():
     solverFieldXText.visible = True
     solverFieldYText.visible = True
 
+solverKnownFillField.shown = False
+
 def solverSolverCreatePrereq():
     global testingList
     solverBoard.clear()
@@ -617,8 +620,12 @@ def solverSolverCreatePrereq():
     solverBoardNumbersY.clear()
     solverPrereq.clear()
     solverPrereqLabels.clear()
+    solverKnownFillField.shown = True
     solverKnownFillField.visible = True
     solverKnownFillText.visible = True
+    for g in testingList:
+        g.visible = False
+    testingList = []
     for i in range(solverSolverSizeX):
         solverPrereq.add(Rect(200+(i*210),200,200,100,fill=None,border="red"))
         testingList.append(Label("0",300+(i*210),250,size=30))
@@ -629,6 +636,7 @@ def solverSolverCreatePrereq():
 def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solves from there
     global solverSolverArray
     tooManyCounters = -1
+    print(testingList)
     solverY = []
     solverX = []
     for j in solverPrereq:
@@ -643,11 +651,12 @@ def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solv
     for h in range(len(solverY)):
         for j in range(len(solverY[h])):
             solverY[h][j] = int(solverY[h][j])
-    solverKnownList = (solverKnownFillText.value).split(";")
-    cOu = -1
-    for g in solverKnownList:
-        cOu += 1
-        solverKnownList[cOu] = g.split(",")
+    # solverKnownList = (solverKnownFillText.value).split(";")
+    # cOu = -1
+    # for g in solverKnownList:
+    #     cOu += 1
+    #     solverKnownList[cOu] = g.split(",")
+    solverKnownList = knownEmptyGrid
     print(solverX,solverY,solverKnownList)
     solverSolverArray = ns.initalize(solverY,solverX,[len(solverX),len(solverY)],solverKnownList)
     solverCreateBoardSolver()
@@ -655,6 +664,7 @@ def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solv
 def solverCreateBoardSolver():
     global solverSolverArray
     global testingList
+    solverBoard.prereqMode = False
     solverPrereq.clear()
     for q in testingList:
         q.visible = False
@@ -675,6 +685,8 @@ def solverCreateBoardSolver():
             elif solverSolverArray[i,o] == 1:
                 #print(playBoardArray[i,o])
                 tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="black",border="grey"))
+            elif solverSolverArray[i,o] == 3:
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="green",border="grey"))
             else:
                 tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
             if i == 0:
@@ -693,7 +705,30 @@ def solverCreateBoardSolver():
     solverSolverUpdateText()
     pass
 
+solverBoard.prereqMode = False
 
+def solverCreateBoardPrereq():
+    global solverSolverArray
+    global testingList
+    solverBoard.prereqMode = True
+    solverPrereq.visible = False
+    for q in testingList:
+        q.visible = False
+    solverBoard.clear()
+    solverBoardNumbersY.clear()
+    solverBoardNumbersX.clear()
+    solverKnownFillText.visible = False
+    solverKnownFillField.visible = False
+    solverBoardW = int(solverFieldWidthText.value)
+    solverBoardH = int(solverFieldHeightText.value)
+    for i in range(solverBoardH):
+        tempGroup = Group()
+        for o in range(solverBoardW):
+            tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
+        solverBoard.add(tempGroup)
+    solverBoard.toBack()
+    solverBoard.centerX = 960
+    solverBoard.centerY = 450
 
 def updateText():
     iN = -1
@@ -787,6 +822,8 @@ def hideSolver():
     solverFieldYText.visible = False
     solverKnownFillText.visible = False
     solverKnownFillField.visible = False
+    for i in testingList:
+        i.visible = False
 
 def showSolver():
     solverBoard.visible = True
@@ -794,6 +831,11 @@ def showSolver():
     solverPrereqLabels.visible = True
     solverBoardNumbersX.visible = True
     solverBoardNumbersY.visible = True
+    if solverKnownFillField.shown:
+        solverKnownFillText.visible = True
+        solverKnownFillField.visible = True
+    for i in testingList:
+        i.visible = True
 
 def showPlayConfig():
     greyOut.visible = True
@@ -987,6 +1029,7 @@ def onMousePress(mX,mY,button):
     global lives
     global lastEntered
     global penalize
+    global knownEmptyGrid
     if speechBubble.tutCurrent:
         if speechBubble.contains(mX,mY):
             speechText.count += 1
@@ -1291,6 +1334,24 @@ def onMousePress(mX,mY,button):
                     #print("ya win buster!")
                     winCelebration.visible = True
     if solverBoard.visible:
+        if solverBoard.prereqMode:
+            sR = -1
+            for i in solverBoard:
+                sG = -1
+                sR += 1
+                for e in i:
+                    sG += 1
+                    if e.contains(mX,mY):
+                        if e.fill == "red":
+                            e.fill = None
+                            try:
+                                knownEmptyGrid.remove([sR,sG])
+                            except:
+                                print("Huh")
+                        if e.fill == None:
+                            e.fill = "red"
+                            knownEmptyGrid.append([sR,sG])
+
         if solverFieldWidth.contains(mX,mY) and not solverFieldWidth.selected and not solverFieldHeight.selected:
                 solverFieldWidth.selected = True
                 solverFieldWidth.fill = rgb(255,200,255)
@@ -1396,6 +1457,8 @@ def onKeyPress(key):
             solverGoshThereAreSoManyFunctions()
         if key == "g":
             solverSolverShowSize()
+        if key == "u":
+            solverCreateBoardPrereq()
         if solverFieldWidth.selected:
             if key.isnumeric():
                 if int(solverFieldWidthText.value + key) <= 20:

@@ -6,6 +6,7 @@
 # 0 = Uncertain
 # 1 = Known to be Filled
 # 2 = Known to be Empty
+# 3 = Unable to be solved by solver
 
 import numpy as np
 import random
@@ -25,7 +26,7 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
     for h in knownEmpty:
         try:
             (h,h[0],h[1])
-            solverArray[int(h[0])-1,int(h[1])-1] = 2
+            solverArray[int(h[0]),int(h[1])] = 2
         except:
             print("Known Empty is either empty or missing values.")
     checkingArray = solverArray.copy()
@@ -44,6 +45,7 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
             print("Successfully solved in",str(iterationCounter),"iterations.")
             #print(solverArray)
             death = True
+            solverArray = adjustForProgram(solverArray,knownEmpty).copy()
             return solverArray
         else:
             if np.array_equal(solverArray,checkingArray):
@@ -55,6 +57,7 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
                 #if np.array_equal(solverArray, testingTreeArray):
                 #    print("Passes the Tree Test")
                 print(solverArray)
+                solverArray = adjustForProgram(solverArray,knownEmpty).copy()
                 return solverArray
             else:
                 print("Proceeding to beginning")
@@ -95,20 +98,20 @@ def checkLaneExact(hN,wN,array1):
                     hL[counter2 + 1]
                     counter1 += 1
                 except:
-                    print("Going to next")
+                    print("CLE: Going to next")
         if counter1 == len(array[elementVert]):
             for j in hL:
                 for u in range(j):
                     tempExactArray = np.append(tempExactArray,[1])
-                    print("Adding Value 1 to tempArray.",j)
+                    print("CLE: Adding Value 1 to tempArray.",j)
                 tempExactArray = np.append(tempExactArray,[2])
-                print("Adding Value 2 to tempArray.",j)
+                print("CLE: Adding Value 2 to tempArray.",j)
             tempExactArray = tempExactArray[:-1]
             #print(tempExactArray,elementVert)
             array[elementVert] = tempExactArray
         else:
-            print("Given row does not fill in properly")
-    print("Proceeding to Columns")
+            print("CLE: Given row does not fill in properly")
+    print("CLE: Proceeding to Columns")
     tempExactArray = np.array([],ndmin=1)
     for wL in wN:
         tempExactArray = np.array([],ndmin=1)
@@ -124,7 +127,7 @@ def checkLaneExact(hN,wN,array1):
                     wL[counter2H + 1]
                     counter1H += 1
                 except:
-                    print("Going to next")
+                    print("CLE: Going to next")
         if counter1H == len(array[:,elementHori]):
             #print("Failure Point 1")
             for a in wL:
@@ -137,8 +140,8 @@ def checkLaneExact(hN,wN,array1):
             #print(tempExactArray,elementHori)
             array[:,elementHori] = tempExactArray
         else:
-            print("Given row does not fill in properly")
-    print("Success in Exacting")
+            print("CLE: Given row does not fill in properly")
+    print("CLE: Success in Exacting")
     return array
 
 def autoFillKnown(hN,wN,array):
@@ -168,7 +171,7 @@ def autoFillKnown(hN,wN,array):
             if (g == 0 or g == 2) and counterAuto > 0:
                 horiValue.append(counterAuto)
                 counterAuto = 0
-        #print(horiValue,hN[autofillVert])
+        print(horiValue,hN,autofillVert)
         if horiValue == hN[autofillVert] or hN[autofillVert] == [0]:
             tempAutoArray = array[autofillVert]
             tempAutoArray[tempAutoArray == 0] = 2
@@ -559,5 +562,23 @@ def bruteforce(hN,wN,array):
         #tempBruteArray = geminiBruteforce(hN,wN,array)
     return tempBruteArray
 
-        
+def adjustForProgram(array,knownEmpty = []):
+    print(array)
+    for i in range(len(array[0])):
+        for j in range(len(array[:,i])):
+            print(i,j)
+            if array[i,j] == 2:
+                array[i,j] = 0
+            elif array[i,j] == 0:
+                array[i,j] = 3
+            elif array[i,j] == 3:
+                print("this code BROKE")
+    for h in knownEmpty:
+        try:
+            (h,h[0],h[1])
+            array[int(h[0]),int(h[1])] = 2
+        except:
+            print("Known Empty is either empty or missing values.")
+    return array
+
 # initalize([[0],[0],[3],[7],[9],[9],[11],[11],[11],[9],[9],[6],[1,3],[4],[3],[3],[3],[1,1,1,1,5,1,1,1],[20],[20]],[[2],[3],[2],[3],[2],[3],[3,2],[7,3],[10,2],[9,1,3],[18],[18],[18],[9,3],[8,2],[7,3],[3,2],[3],[2],[3]],[20,20])
