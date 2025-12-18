@@ -1,16 +1,17 @@
 # Decided that solving should be done in a seperate file to declutter the main file. 
 # nonogram.py SHOULD BE RAN
-# Do not run this file and expect anything to appear (except now)
+# Do not run this file and expect anything to appear
 
 # IMPORTANT: ARRAYS
 # 0 = Uncertain
-# 1 = Known to be Selected
+# 1 = Known to be Filled
 # 2 = Known to be Empty
 
 import numpy as np
 import random
             
 def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all expects lists, size must be in [height,width]
+    iterationCounter = 0
     solverArray = np.array(([],[]),ndmin=2)
     death = False
     for height in range(size[0]):
@@ -23,7 +24,7 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
             solverArray = tempArray
     for h in knownEmpty:
         try:
-            print(h,h[0],h[1])
+            (h,h[0],h[1])
             solverArray[int(h[0])-1,int(h[1])-1] = 2
         except:
             print("Known Empty is either empty or missing values.")
@@ -36,27 +37,29 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
         print("Checking Lane Optimistically")
         solverArray = checkLaneOptimistic(hN,wN,solverArray).copy()
         print("Bouncing")
-        solverArray = bounce(hN,wN,solverArray,size).copy()
+        solverArray = bounceExperimental(hN,wN,solverArray).copy()
         #print("Single Digit Joining")
-        #solverArray = singleDigitJoining(hN,wN,solverArray)
+        #solverArray = singleDigitJoining(hN,wN,solverArray).copy()
         if isSolved(solverArray):
-            print("Successfully solved")
-            print(solverArray)
+            print("Successfully solved in",str(iterationCounter),"iterations.")
+            #print(solverArray)
             death = True
             return solverArray
         else:
             if np.array_equal(solverArray,checkingArray):
-                print(solverArray)
+                #print(solverArray)
                 print("Failure to solve, proceeding to bruteforce")
                 solverArray = bruteforce(hN,wN,solverArray)
                 print("Bruteforce complete")
-                print(solverArray)
+                #print(solverArray)
                 #if np.array_equal(solverArray, testingTreeArray):
                 #    print("Passes the Tree Test")
+                print(solverArray)
                 return solverArray
             else:
                 print("Proceeding to beginning")
                 checkingArray = solverArray.copy()
+                iterationCounter += 1
                 #print(solverArray)
 
 
@@ -221,7 +224,7 @@ def checkLaneOptimistic(hN,wN,array): # Assumes that empty spaces are filled in 
             if g == 0 or g == 1:
                 counterAuto += 1
                 try:
-                    print(i[horiPos + 1])
+                    (i[horiPos + 1])
                 except:
                     horiValue.append(counterAuto)
                     counterAuto = 0
@@ -245,7 +248,7 @@ def checkLaneOptimistic(hN,wN,array): # Assumes that empty spaces are filled in 
             if g == 1 or g == 0:
                 counterAuto += 1
                 try:
-                    print(i[vertPos + 1])
+                    (i[vertPos + 1])
                 except:
                     vertValue.append(counterAuto)
                     counterAuto = 0
@@ -294,7 +297,147 @@ def bounce(hN,wN,array,size): # Checks edges for 1s, if so, expand it to satisfy
     #print(array)
     return array
 
-def singleDigitJoining(hN,wN,array): # Bugged. Will finish later.
+def bounceV2(hN,wN,array): # A better bounce. Checks for edges, if the edge is a 2, continue on the row/column until you reach a 0 or a 1 and proceed accordingly
+    # Up row
+    for i in range(len(array[0])):
+        if len(wN[i]) == 1 and not wN[i] == [0]:
+            if array[0,i] == 1:
+                for j in range(wN[i][0]):
+                    array[j,i] = 1
+            if array[0,i] == 2:
+                for h in range(len(array[:,0])):
+                    if array[h,i] == 2:
+                        pass
+                    if array[h,i] == 0:
+                        break
+                    if array[h,i] == 1:
+                        for j in range(wN[i][0]):
+                            #print(j,h,i,array[:,i],wN[i])
+                            array[j+h,i] = 1
+                        break
+    # Left column
+    print("BounceV2: Proceeding to Left Col")
+    for i in range(len(array[:,0])):
+        if len(hN[i]) == 1 and not hN[i] == [0]:
+            if array[i,0] == 1:
+                for j in range(hN[i][0]):
+                    #print(hN[i],j,i)
+                    array[i,h] = 1
+            if array[i,0] == 2:
+                for h in range(len(array[0])):
+                    #print(h,i,array[i,h],hN[i])
+                    if array[i,h] == 2:
+                        pass
+                    if array[i,h] == 0:
+                        break
+                    if array[i,h] == 1:
+                        for j in range(hN[i][0]):
+                            #print(j,h,i,array[i,:],hN[i])
+                            array[i,j+h] = 1
+                        break
+    # Down row
+    print("BounceV2: Proceeding to Down row")
+    for i in range(len(array[-1])):
+        if len(wN[-(i+1)]) == 1 and not wN[-(i+1)] == [0]:
+            if array[-1,i] == 1:
+                for j in range(wN[-(i+1)][0]):
+                    array[-(j+1),-(i+1)] = 1
+                    #print(wN[-(i+1)],j,i)
+            if array[-1,i] == 2:
+                for h in range(len(array[:,-1])):
+                    if array[-(h+1),-(i+1)] == 2:
+                        pass
+                    if array[-(h+1),-(i+1)] == 0:
+                        break
+                    if array[-(h+1),-(i+1)] == 1:
+                        for j in range(wN[i][0]):
+                            array[-(h+1)-j,-(i+1)] = 1
+                            #print(j,h,i,array[i,:],wN[i])
+                        break
+    # Right Column
+    print("BounceV2: Proceeding to Right Col")
+    for i in range(len(array[:,-1])):
+        if len(hN[i]) == 1 and not hN[i] == [0]:
+            for h in range(len(array[0])):
+                #print(h,i,array[i,h],hN[i])
+                if array[i,-(h+1)] == 2:
+                    continue
+                if array[i,-(h+1)] == 0:
+                    break
+                if array[i,-(h+1)] == 1:
+                    for j in range(hN[i][0]):
+                        print(j,h,i,array[i,:],hN[i]) #j = number in hN | h = spacer | i = row | the array its reading | number in hN
+                        array[i,-(h+1)-j] = 1
+                    break
+    print(array)
+    return array
+            
+def bounceExperimental(hN,wN,array):
+    #print(array)
+    # Up row
+    print("BounceExper: Proceeding to Up Row")
+    for i in range(len(array[0])):
+        val = wN[i][0]
+        for h in range(len(array[:,0])):
+            if array[h,i] == 2:
+                pass
+            if array[h,i] == 0:
+                break
+            if array[h,i] == 1:
+                for j in range(val):
+                    #print("Up",j,h,i,val,array[:,i])
+                    array[j+h,i] = 1
+                break
+    # Left column
+    print("BounceExper: Proceeding to Left Col")
+    for i in range(len(array[:,0])):
+        val = hN[i][0]
+        for h in range(len(array[0])):
+            #print(h,i,array[i,h],hN[i])
+            if array[i,h] == 2:
+                pass
+            if array[i,h] == 0:
+                #print(val)
+                break
+            if array[i,h] == 1:
+                for j in range(val):
+                    #print(j,val)
+                    array[i,j+h] = 1
+                break
+    # Down row
+    print("BounceExper: Proceeding to Down row")
+    for i in range(len(array[-1])):
+        val = wN[-(i+1)][-1]
+        for h in range(len(array[:,-1])):
+            if array[-(h+1),-(i+1)] == 2:
+                pass
+            if array[-(h+1),-(i+1)] == 0:
+                break
+            if array[-(h+1),-(i+1)] == 1:
+                for j in range(val):
+                    array[-(h+1)-j,-(i+1)] = 1
+                    #print(j,h,i,array[:,-(i+1)],val)
+                break
+    # Right Column
+    print("BounceExper: Proceeding to Right Col")
+    for i in range(len(array[:,-1])):
+        val = hN[i][-1]
+        for h in range(len(array[0])):
+            #print(h,i,array[i,h],hN[i])
+            if array[i,-(h+1)] == 2:
+                continue
+            if array[i,-(h+1)] == 0:
+                break
+            if array[i,-(h+1)] == 1:
+                for j in range(val):
+                    #print(j,h,i,array[i,:],val) #j = number in hN | h = spacer | i = row | the array its reading | number in hN
+                    array[i,-(h+1)-j] = 1
+                break
+    #print(array)
+    return array
+
+def singleDigitJoining(hN,wN,array): # Not ready for release. Should be rewritten. Do NOT touch this code or you will be sent to the 7th layer of hell. Oh, and merge joining and distancing on v2 of this
+    print(array)
     joinCountH = -1
     joinCountW = -1
     leftMostH = 0
@@ -313,12 +456,17 @@ def singleDigitJoining(hN,wN,array): # Bugged. Will finish later.
                     cDF = s
                     break
             for f in range(len(array[joinCountH])):
-                if array[joinCountH,(-s-1)] == 1:
-                    rightMostH = f
+                if array[joinCountH,(-f-1)] == 1:
+                    rightMostH = len(array[0])-(f+1)
+                    print(f,array[joinCountH,-f-1])
                     break
-            while cDF < (len(array[0])-rightMostH):
-                array[joinCountH,cDF] = 1
+            for x in range(leftMostH, rightMostH + 1):
+                array[joinCountH,x] = 1
                 cDF += 1
+            for i in range(len(array[0]),leftMostH-(h[0]-(rightMostH - leftMostH))):
+                 if i - (h[0]-(rightMostH - leftMostH)) < 0:
+                     array[joinCountH,i] = 2
+                     print((h[0]-(rightMostH - leftMostH)),i)
     for w in wN:
         joinCountW += 1
         if len(w) == 1 and not w == [0]:
@@ -328,14 +476,18 @@ def singleDigitJoining(hN,wN,array): # Bugged. Will finish later.
                     cGE = s
                     break
             for f in range(len(array[:,joinCountW])):
-                if array[(-f-1),joinCountW] == 1:
+                if array[(-f+1),joinCountW] == 1:
                     #print(f,joinCountW,array[-f-1,joinCountW])
-                    downMost = f
+                    downMost = len(array[:,0]) - (f+1)
                     break
             while cGE < (len(array[:,0])-downMost):
                 #print(downMost,cGE, len(array[:,0]))
                 array[cGE,joinCountW] = 1
                 cGE += 1
+            for i in range(cGE):
+                 if i - (h[0]-(upMost - downMost)) < 0:
+                     array[i,joinCountW] = 2
+                     print((h[0]-(downMost - upMost)),i)
     return array
 
 def bruteforce(hN,wN,array):
@@ -395,9 +547,9 @@ def bruteforce(hN,wN,array):
             solved = True
         else:
             calculations += 1
-            if np.array_equal(testingTreeArray,tempBruteArray):
-                print("Array matched result yet failed to report on it.")
-                return tempBruteArray
+            #if np.array_equal(testingTreeArray,tempBruteArray):
+            #    print("Array matched result yet failed to report on it.")
+            #    return tempBruteArray
             #print(tempBruteArray)
             pass
             #print(counterX,counterY)
@@ -407,7 +559,5 @@ def bruteforce(hN,wN,array):
         #tempBruteArray = geminiBruteforce(hN,wN,array)
     return tempBruteArray
 
-def singleDigitDistancing(hN,wN,array): # Planned to be finished later. Currently, most functions get the job done, so finishing this is low priority.
-    for w in hN:
-        if len(w) == 1 and not w == [0]:
-            return
+        
+# initalize([[0],[0],[3],[7],[9],[9],[11],[11],[11],[9],[9],[6],[1,3],[4],[3],[3],[3],[1,1,1,1,5,1,1,1],[20],[20]],[[2],[3],[2],[3],[2],[3],[3,2],[7,3],[10,2],[9,1,3],[18],[18],[18],[9,3],[8,2],[7,3],[3,2],[3],[2],[3]],[20,20])

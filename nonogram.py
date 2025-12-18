@@ -7,20 +7,20 @@ from tkinter import filedialog
 import nonogramsolver as ns
 
 
-prompter = promptlib.Files()
+prompter = promptlib.Files() # Should be replaced by tkinter, but I couldn't be bothered
 
 # Header
-whiteHider = Rect(0,0,1920,115,fill="white")
+whiteHider = Rect(0,0,1920,115,fill="white") # Allows grids to hide behind buttons without overlapping and looking ugly
 buttonPlay = Rect(20,20,200,75,border="black",fill=None)
 buttonCreate = Rect(240,20,200,75,border="black",fill=None)
 buttonSolver = Rect(460,20,200,75,border="black",fill=None)
-buttonInfo = Rect(1700,20,200,75,border="black",fill=None)
+buttonInfo = Rect(1700,20,200,75,border="black",fill=None) # Header Buttons
 Label("Create",buttonCreate.centerX,buttonCreate.centerY,size=45,align="center",font="Archivo")
 Label("Solver",buttonSolver.centerX,buttonSolver.centerY,size=45,align="center",font="Archivo")
 Label("Play",buttonPlay.centerX,buttonPlay.centerY,size=45,align="center",font="Archivo")
 Label("Info",buttonInfo.centerX,buttonInfo.centerY,size=45,align="center",font="Archivo")
 app.width = 1920
-app.height = 1080
+app.height = 1080 # Main reason I'm using CMU Desktop instead of webapp. Very very helpful to manipulate window size to be larger than 400x400
 
 playSizeX = 0
 playSizeY = 0
@@ -29,8 +29,9 @@ createSizeY = 0
 solverSizeX = 0
 solverSizeY = 0
 solverSolverSizeX = 0
-solverSolverSizeY = 0
+solverSolverSizeY = 0 # Variables for the size of the grids
 
+# Fields that defines grid size in Create
 fieldWidth = Rect(740,980,200,75,border="black",fill=None,visible = False)
 fieldXText = Label("Field X",fieldWidth.centerX,fieldWidth.centerY-60,size=30,font="Archivo",visible = False)
 fieldWidthText = Label("",fieldWidth.centerX,fieldWidth.centerY,size=45,font="Archivo",visible = False)
@@ -38,17 +39,19 @@ fieldWidth.selected = False
 fieldHeight = Rect(960,980,200,75,border="black",fill=None,visible = False)
 fieldYText = Label("Field Y",fieldHeight.centerX,fieldHeight.centerY-60,size=30,font="Archivo",visible = False)
 fieldHeightText = Label("",fieldHeight.centerX,fieldHeight.centerY,size=45,font="Archivo",visible = False)
-fieldHeight.selected = False
+fieldHeight.selected = False 
 
-createBoardSelected = np.array(([],[]),ndmin=2)
+createBoardSelected = np.array(([],[]),ndmin=2) # Arrays for everything needed
 playBoardArray = np.array(([],[]),ndmin=2)
 playBoardSelected = np.array(([],[]),ndmin=2)
 solverJSONArray = np.array(([],[]),ndmin=2)
 solverSolverArray = np.array(([],[]),ndmin=2)
 
-solverY = []
+# Lists for solver to use during manual solving
+solverY = [] 
 solverX = []
 
+# Create necessities
 createBoard = Group()
 createBoard.visible = False
 createBoardNumbersX = Group()
@@ -59,8 +62,9 @@ createTutorial = Image("data/CreateKeybinds.png",1400,50,visible = False)
 createTutorial.width = 500
 createTutorial.height = 500
 
-testingList = []
+testingList = [] # List for solver to put Labels in because Group()s can't be indexed
 
+# Solve neccessities
 solverBoard = Group()
 solverBoard.visible = False
 solverPrereq = Group()
@@ -83,6 +87,7 @@ solverKnownFillField = Rect(500,500,200,100,border="black",fill=None,visible=Fal
 solverKnownFillField.selected = False
 solverKnownFillText = Label(";",solverKnownFillField.centerX,solverKnownFillField.centerY,size=30,font="Archivo",visible = False)
 
+# Playboard neccessities
 playBoard = Group()
 playBoard.visible = False
 playBoardNumbersX = Group()
@@ -96,8 +101,9 @@ playTutorial.width = playTutorial.width * 0.55
 playTutorial.height = playTutorial.height * 0.55
 playTutorialMouse = Image('data/Mouse Play.png',1400,200,visible=False)
 
-info = Image("data/info.png",0,115)
+info = Image("data/info.png",0,115) # Info screen
 
+# Config overlay and difficulty neccessities
 greyOut = Rect(0,0,1920,1080,fill="white",opacity=80,visible = False)
 backgroundGUI = Rect(360,180,1200,720,fill="white",border="black",borderWidth=7,visible = False)
 xMark = Label("X",1510,230,size=50,visible = False)
@@ -120,24 +126,25 @@ titleCreateGUI = Label("Create Mode Settings",1920/2,230,size=40,visible = False
 #checkmarkCorrection = Rect(400,440,100,100,fill="white",border="black",borderWidth=3)
 #settingCorrection = Label("Correction",600,490,size=30)\
 
+# Tutorial Neccessities
 whiteOutTut = Rect(0,0,1920,1080,fill='white',opacity=90,visible=False)
 speechBubble = Polygon(100,100, 150,150, 700,150, 700,400, 150,400, 150,200,fill="white",border="black",visible=False)
 speechBubble.tutCurrent = False
 speechText = Label("Welcome to my Nonogram program!",speechBubble.centerX,speechBubble.centerY+20,size=40,font="Archivo",visible=False)
 speechText.count = 0
 speechNext = Polygon(0,0, 20,0, 10,20, fill="white",border="black",visible = False)
-dialogue = ["Welcome to Nonograms!", "Nonogram is a puzzle game about uncovering a black and white image.","You are given a grid, and numbers for the rows and columns.","If you can't tell, the numbers will help you solve the grid.","The numbers next to the row/column explains the length","of runs or unbroken cells in that lane. We represent those with", "the color black. You can color cells with black with left click.","Right click will fill it blue, which will mean you think its empty.","Sometimes, you might encounter a red cell. That means it is set","as empty from the artist of the nonogram.","The best way of learning nonograms is practice!","Lets place you into a simple board of a nonogram.", "On this board, we can solve by applying what we know,","then filling in what was satisified, Then, we continue","finding places that we can solve.","Look at the top row, you see how it says (1,1,1)?","This must mean that the lane must have one cell,","atleast one empty slot, one cell, empty, cell.","Wait a moment, that pattern! Fill, empty, fill, empty, fill,","at the very minimum, the length of the lane will be 5,", "which is the same length as our lane!","We can fill in the lane with this pattern.","Try solving the rest of the puzzle!","Congrats! You solved your first nonogram.","From here on out, you can access all facutilies of the app.", "Have fun!"]
+dialogue = ["Welcome to Nonograms!", "Nonogram is a puzzle game about uncovering a black and white image.","You are given a grid, and numbers for the rows and columns.","If you can't tell, the numbers will help you solve the grid.","The numbers next to the row/column explains the length","of runs or unbroken cells in that lane. We represent those with", "the color black. You can color cells with black with left click.","Right click will fill it blue, which will mean you think its empty.","Sometimes, you might encounter a red cell. That means it is set","as empty from the artist of the nonogram.","The best way of learning nonograms is practice!","Lets place you into a simple board of a nonogram.", "On this board, we can solve by applying what we know,","then filling in what was satisified, Then, we continue","finding places that we can solve.","Look at the top row, you see how it says (1,1,1)?","This must mean that the lane must have one cell,","atleast one empty slot, one cell, empty, cell.","Wait a moment, that pattern! Fill, empty, fill, empty, fill,","at the very minimum, the length of the lane will be 5,", "which is the same length as our lane!","We can fill in the lane with this pattern.","And look! We satisfied some columns too.","We can fill those in aswell!","Try solving the rest of the puzzle!","Congrats! You solved your first nonogram.","From here on out, you can access all features of the app.", "Have fun!"]
 
 
 
-def adjustSpeechBubbleSize():
+def adjustSpeechBubbleSize(): # Will adjust speech bubble to adjust to text size
     speechText.left = speechBubble.x2 + 20
     speechBubble.x3 = speechText.right + 20
     speechBubble.x4 = speechText.right + 20
     speechNext.right = speechBubble.right - 20
     speechNext.bottom = speechBubble.bottom - 20
 
-def initalizeTutorial():
+def initalizeTutorial(): # Start tutorial
     whiteOutTut.visible = True
     speechBubble.visible = True
     speechText.visible = True
@@ -147,7 +154,7 @@ def initalizeTutorial():
     speechText.value = "Welcome to Nonograms!"
     adjustSpeechBubbleSize()
 
-def checkFirstTimeLaunch():
+def checkFirstTimeLaunch(): # Will see if file hasPlayed exists, if not, make one and return True
     try:
         f = open("hasPlayed.txt")
         return False
@@ -155,10 +162,10 @@ def checkFirstTimeLaunch():
         f = open("hasPlayed.txt","x")
         return True
 
-if checkFirstTimeLaunch():
+if checkFirstTimeLaunch(): # Will check if first time playing, then start the tutorial if player hasn't played before
     initalizeTutorial()
 
-def createCreateBoard():
+def createCreateBoard(): # Creates basic empty board for creating purpose
     global createBoardSelected
     createBoard.clear()
     createBoardNumbersY.clear()
@@ -189,6 +196,7 @@ def createCreateBoard():
     #createBoardNumbers.bottomY = createBoard.topY
     #print(createBoardSelected)
 
+# The JSON used for the tutorial
 treeJSON = """{
     "boardData": [
         {
@@ -237,7 +245,7 @@ treeJSON = """{
     ]
 }"""
 
-def tutorialCreateBoard(): # Uses play board
+def tutorialCreateBoard(): # Acts the same as playboard, but forces the tree JSON
     global playBoardArray
     global playBoardSelected
     global lives
@@ -288,7 +296,7 @@ def tutorialCreateBoard(): # Uses play board
 
 
 
-def playCreateBoard():
+def playCreateBoard(): # Creates the board uses for playing
     global playBoardArray
     global playBoardSelected
     global lives
@@ -300,7 +308,7 @@ def playCreateBoard():
     lives = 5
     lastEntered = [-1,-1]
     playBoardSelected = np.array(([],[]),ndmin=2)
-    try:
+    try: # Tries to see if file is a valid JSON and a valid Nonogram JSON
         fileBoard = prompter.file()
         fileBoard = open(fileBoard)
         jsonBoard = json.load(fileBoard)
@@ -308,31 +316,30 @@ def playCreateBoard():
         playBoardH = jsonBoard["boardData"][1]["boardH"]
         playBoardArray = np.array(jsonBoard["boardArray"])
     except:
-        print("Failure to open file")
-        return
+        print("Failure to open file") # Kills code if failure to find valid JSON
+        return 
     for i in range(playBoardH):
         tempGroup = Group()
         tempArray = np.array([],ndmin=1)
         for o in range(playBoardW):
-            #print(i,o,playBoardW,playBoardH)
-            if playBoardArray[i,o] == 2:
+            if playBoardArray[i,o] == 2: # Checks if artist marked as red, if so, make the selection array say that
                 tempArray = np.append(tempArray,[2])
             else:
                 tempArray = np.append(tempArray,[0])
             if playBoardArray[i,o] == 2:
-                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey"))
+                tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill="red",border="grey")) # If artist marked red, make cell red
             else:
                 #print(playBoardArray[i,o])
                 tempGroup.add(Rect(100+(o*50),100+(i*50),50,50,fill=None,border="grey"))
             if i == 0:
-                playBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90)) # God forbid supporting \n! Guess I must force users to tilt their heads
-        try:
+                playBoardNumbersX.add(Label("0",50+(o*50),100,align="bottom",font="Archivo",size=25,rotateAngle=90))
+        try: # Will stack the temporary array to playboard
             playBoardSelected = np.vstack((playBoardSelected, tempArray))
-        except:
+        except: # On first time around, it will throw an error stacking. This prevents it
             playBoardSelected = tempArray
         playBoard.add(tempGroup)
         playBoardNumbersY.add(Label("0",95,150+(i*50),align="right",font="Archivo",size=25))
-    playBoard.toBack()
+    playBoard.toBack() # Here and below just makes sure it looks neat
     playBoardNumbersX.toBack()
     playBoardNumbersY.toBack()
     playBoard.centerX = 960
@@ -343,7 +350,7 @@ def playCreateBoard():
     playBoardNumbersY.centerY = playBoard.centerY
     playUpdateText()
 
-def playUpdateText():
+def playUpdateText(): # Changes text around to follow the numbers for the answer
     iN = -1
     for i in playBoardNumbersY:
         fN = -1
@@ -983,7 +990,7 @@ def onMousePress(mX,mY,button):
     if speechBubble.tutCurrent:
         if speechBubble.contains(mX,mY):
             speechText.count += 1
-            if speechText.count == 26:
+            if speechText.count == 28:
                 speechText.visible = False
                 speechBubble.visible = False
                 speechNext.visible = False
@@ -1026,13 +1033,33 @@ def onMousePress(mX,mY,button):
                         playBoardSelected[0,2] = 1
                         playBoardSelected[0,4] = 1
             if speechText.count == 23:
+                countomg = -1
+                countonh = -1
+                for i in playBoard:
+                    for g in i:
+                        countomg += 1
+                        countonh += 1
+                        if countomg % 5 == 0:
+                            if g.fill == "black":
+                                pass
+                            else:
+                                g.fill = "blue"
+                        
+                        if (countonh + 1) % 5 == 0:
+                            if g.fill == "black":
+                                pass
+                            else:
+                                g.fill = "blue"
+                        if countomg == 7:
+                            g.fill = "blue"
+            if speechText.count == 25:
                 speechText.visible = False
                 speechBubble.visible = False
                 speechNext.visible = False
                 playTutorialMouse.visible = True
             print(speechText.count)
             adjustSpeechBubbleSize()
-        if speechText.count == 23:
+        if speechText.count == 25:
             if playBoard.visible:
                 if not greyOut.visible:
                     if playBoard.contains(mX,mY):
