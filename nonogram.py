@@ -89,6 +89,12 @@ knownEmptyGrid = []
 polyArrow = Polygon(350,170, 390,170, 390,150, 420,180, 390,210, 390,190, 350,190)
 polyArrowY = Polygon(350,170, 390,170, 390,150, 420,180, 390,210, 390,190, 350,190)
 solverPrereqInfo = Group(Label("X",320,180,font="Archivo",size=35),polyArrow,Label("Y",80,350,font="Archivo",size=35),polyArrowY)
+solveTutorial = Image("data/SolverKeybinds1.png",1500,300,visible = False)
+solveTutorial.width = solveTutorial.width * 0.7
+solveTutorial.height = solveTutorial.height * 0.7
+solveTutorial2 = Image("data/SolverKeybinds2.png",1300,800,visible = False)
+solveTutorial2.width = solveTutorial2.width * 0.7
+solveTutorial2.height = solveTutorial2.height * 0.7
 
 polyArrow.width = 30
 polyArrow.height = 20
@@ -573,6 +579,13 @@ def solverCreateBoardJSON():
     solverBoard.clear()
     solverBoardNumbersY.clear()
     solverBoardNumbersX.clear()
+    solverPrereq.visible = False
+    solverPrereqInfo.visible = False
+    for i in testingList:
+        i.visible = False
+    solverKnownFillField.shown = False
+    solveTutorial.visible = False
+    solveTutorial2.visible = False
     solverFieldHeight.visible = False
     solverFieldHeightText.visible = False
     solverFieldWidth.visible = False
@@ -634,8 +647,14 @@ def solverSolverCreatePrereq():
     solverBoardNumbersY.clear()
     solverPrereq.clear()
     solverPrereqLabels.clear()
+    solverPrereq.visible = True
     solverKnownFillField.shown = True
     solverPrereqInfo.visible = True
+    solveTutorial.visible = False
+    solveTutorial2.visible = True
+    solverPrereqInfo.centerX = 216.4
+    solverPrereqInfo.centerY = 286.2
+    solverPrereqInfo.toBack()
     for g in testingList:
         g.visible = False
     testingList = []
@@ -645,7 +664,10 @@ def solverSolverCreatePrereq():
     for i in range(solverSolverSizeY):
         solverPrereq.add(Rect(100,330+(i*120),200,100,fill=None,border="blue"))
         testingList.append(Label("0",200,380+(i*120),size=30))
-    
+    for i in testingList:
+        i.toBack()
+    solverPrereq.toBack()
+
 def solverGoshThereAreSoManyFunctions(): # Uses what is inputed by user and solves from there
     global solverSolverArray
     tooManyCounters = -1
@@ -730,7 +752,6 @@ def solverCreateBoardPrereq():
     solverBoard.clear()
     solverBoardNumbersY.clear()
     solverBoardNumbersX.clear()
-    solverKnownFillText.visible = False
     solverKnownFillField.visible = False
     solverBoardW = int(solverFieldWidthText.value)
     solverBoardH = int(solverFieldHeightText.value)
@@ -835,6 +856,8 @@ def hideSolver():
     solverFieldYText.visible = False
     solverKnownFillField.visible = False
     solverPrereqInfo.visible = False
+    solveTutorial2.visible = False
+    solveTutorial.visible = False
     for i in testingList:
         i.visible = False
 
@@ -844,8 +867,11 @@ def showSolver():
     solverPrereqLabels.visible = True
     solverBoardNumbersX.visible = True
     solverBoardNumbersY.visible = True
+    solveTutorial.visible = True
     if solverKnownFillField.shown:
         solverPrereqInfo.visible = True
+        solveTutorial2.visible = True
+        solveTutorial.visible = False
     for i in testingList:
         i.visible = True
 
@@ -1399,7 +1425,7 @@ def onKeyPress(key):
             solverBoardNumbersX.centerY -= 10
             solverBoardNumbersY.centerY -= 10
             solverKnownFillField.centerY -= 10
-            solverKnownFillText.centerY -= 10
+            solverPrereqInfo.centerY -= 10
             solverPrereq.centerY -= 10
             for h in testingList: # Slowly I regret substituting the text to be a list instead of a group
                 h.centerY -= 10
@@ -1409,7 +1435,7 @@ def onKeyPress(key):
             solverBoardNumbersY.centerY += 10
             solverPrereq.centerY += 10
             solverKnownFillField.centerY += 10
-            solverKnownFillText.centerY += 10
+            solverPrereqInfo.centerY += 10
             for h in testingList:
                 h.centerY += 10
         if key == "left":
@@ -1418,7 +1444,7 @@ def onKeyPress(key):
             solverBoardNumbersY.centerX -= 10
             solverPrereq.centerX -= 10
             solverKnownFillField.centerX -= 10
-            solverKnownFillText.centerX -= 10
+            solverPrereqInfo.centerX -= 10
             for h in testingList:
                 h.centerX -= 10
         if key == "right":
@@ -1427,7 +1453,7 @@ def onKeyPress(key):
             solverBoardNumbersY.centerX += 10
             solverPrereq.centerX += 10
             solverKnownFillField.centerX += 10
-            solverKnownFillText.centerX += 10
+            solverPrereqInfo.centerX += 10
             for h in testingList:
                 h.centerX += 10
         try:
@@ -1609,7 +1635,7 @@ def onKeyHold(keys):
             solverBoardNumbersX.centerY -= 10
             solverBoardNumbersY.centerY -= 10
             solverKnownFillField.centerY -= 10
-            solverKnownFillText.centerY -= 10
+            solverPrereqInfo.centerY -= 10
             solverPrereq.centerY -= 10
             for h in testingList: # Slowly I regret substituting the text to be a list instead of a group
                 h.centerY -= 10
@@ -1619,7 +1645,7 @@ def onKeyHold(keys):
             solverBoardNumbersY.centerY += 10
             solverPrereq.centerY += 10
             solverKnownFillField.centerY += 10
-            solverKnownFillText.centerY += 10
+            solverPrereqInfo.centerY += 10
             for h in testingList:
                 h.centerY += 10
         if "left" in keys:
@@ -1628,7 +1654,7 @@ def onKeyHold(keys):
             solverBoardNumbersY.centerX -= 10
             solverPrereq.centerX -= 10
             solverKnownFillField.centerX -= 10
-            solverKnownFillText.centerX -= 10
+            solverPrereqInfo.centerX -= 10
             for h in testingList:
                 h.centerX -= 10
         if "right" in keys:
@@ -1637,7 +1663,7 @@ def onKeyHold(keys):
             solverBoardNumbersY.centerX += 10
             solverPrereq.centerX += 10
             solverKnownFillField.centerX += 10
-            solverKnownFillText.centerX += 10
+            solverPrereqInfo.centerX += 10
             for h in testingList:
                 h.centerX += 10
     if playBoard.visible:

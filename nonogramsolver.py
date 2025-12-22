@@ -15,9 +15,9 @@ def initalize(hN,wN,size,knownEmpty=[]): #heightNumbers,widthNumbers,size, all e
     iterationCounter = 0
     solverArray = np.array(([],[]),ndmin=2)
     death = False
-    for height in range(size[0]):
+    for height in range(size[1]):
         tempArray = np.array([],ndmin=1)
-        for width in range(size[1]):
+        for width in range(size[0]):
             tempArray = np.append(tempArray,[0])
         try:
             solverArray = np.vstack((solverArray, tempArray))
@@ -582,3 +582,5 @@ def adjustForProgram(array,knownEmpty = []):
     return array
 
 # initalize([[0],[0],[3],[7],[9],[9],[11],[11],[11],[9],[9],[6],[1,3],[4],[3],[3],[3],[1,1,1,1,5,1,1,1],[20],[20]],[[2],[3],[2],[3],[2],[3],[3,2],[7,3],[10,2],[9,1,3],[18],[18],[18],[9,3],[8,2],[7,3],[3,2],[3],[2],[3]],[20,20])
+
+#initalize([[3,4,11],[2,1,1,10],[2,10],[2,9],[1,1,1,7,1],[1,5,1],[1,2,3,1],[1,1,1,1,1],[1,4,1],[1,1],[1,1],[1,1],[1,1],[1,2],[2,2],[2,2,4,2,2],[2,2,4,2,2],[2,3,5,3,3],[20]],[[19],[4,5],[1,1,1],[1,1,1,2],[1,3,4],[1,1,1,4],[1,1,1,1],[1,1,2],[1,4],[1,4],[3,4],[5,4],[5,1],[6,2],[6,4],[7,4],[7,1],[7,2],[4,6],[19]],[20,19])

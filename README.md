@@ -1,5 +1,8 @@
 ## Python Nonograms done with CMU-Graphics
 
+# Note: This repository will most likely be abandoned!
+A Godot port will most like take place of this version.
+
 Keybinds:
   - Play Mode:
     - C - Config
