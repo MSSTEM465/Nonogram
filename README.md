@@ -1,7 +1,6 @@
-## Python Nonograms done with CMU-Graphics
+# Python Nonograms done with CMU-Graphics
 
-# Note: This repository will most likely be abandoned!
-A Godot port will most like take place of this version.
+## Note: This repository has been replaced with https://github.com/MSSTEM465/GodotBoardGames/
 
 Keybinds:
   - Play Mode:
